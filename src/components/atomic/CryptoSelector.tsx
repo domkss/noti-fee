@@ -37,46 +37,46 @@ function CryptoSelector(props: CryptoSelectorProps) {
         });
 
   return (
-    <div>
+    <div className={props.className}>
       <Combobox
         value={selected}
         onChange={(value) => {
           if (value) setSelected(value);
         }}
       >
-        <div className='relative'>
+        <div className="relative">
           <ComboboxInput
             className={cn(
-              "w-full rounded-lg border p-3 pr-8 text-sm/6 text-balck",
-              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-balck/25 shadow-sm"
+              "text-balck w-full rounded-lg border py-2 pl-3 pr-8 text-sm/6",
+              "data-[focus]:outline-balck/25 shadow-sm focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2",
             )}
             displayValue={(token: { name: string }) => token?.name || ""}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <ComboboxButton className='flex absolute inset-y-0 right-0 px-2.5 justify-center items-center'>
-            <TokenIcon key={selected.id} symbol={selected.symbol} size={30} variant='branded' />
-            <ChevronDownIcon className='pointer-events-none size-4 fill-black/60' aria-hidden='true' />
+          <ComboboxButton className="absolute inset-y-0 right-0 flex items-center justify-center px-2.5">
+            <TokenIcon key={selected.id} symbol={selected.symbol} size={30} variant="branded" />
+            <ChevronDownIcon className="pointer-events-none size-4 fill-black/60" aria-hidden="true" />
           </ComboboxButton>
         </div>
         <Transition
-          leave='transition ease-in duration-100'
-          leaveFrom='opacity-100'
-          leaveTo='opacity-0'
+          leave="transition ease-in duration-100"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
           afterLeave={() => setQuery("")}
         >
           <ComboboxOptions
-            anchor='bottom'
-            className='w-[var(--input-width)] rounded-xl border border-gray-100 bg-white p-1 [--anchor-gap:var(--spacing-1)] empty:hidden z-10'
+            anchor="bottom"
+            className="z-10 w-[var(--input-width)] rounded-xl border border-gray-100 bg-white p-1 [--anchor-gap:var(--spacing-1)] empty:hidden"
           >
             {filteredTokens.map((token) => (
               <ComboboxOption
                 key={token.id}
                 value={token}
-                className='group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-black/10 bg-white'
+                className="group flex cursor-default select-none items-center gap-2 rounded-lg bg-white px-3 py-1.5 data-[focus]:bg-black/10"
               >
-                <TokenIcon key={token.id} symbol={token.symbol} size={30} variant='branded' />
+                <TokenIcon key={token.id} symbol={token.symbol} size={30} variant="branded" />
 
-                <div className='text-sm/6 text-balck'>{token.name}</div>
+                <div className="text-balck text-sm/6">{token.name}</div>
               </ComboboxOption>
             ))}
           </ComboboxOptions>
