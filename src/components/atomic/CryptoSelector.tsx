@@ -7,7 +7,7 @@ import {
   ComboboxOptions,
   Transition,
 } from "@headlessui/react";
-import { cn } from "@/lib/client/UIHelperFunctions";
+import { cn } from "@/lib/utility/clientHelperFunctions";
 import { useEffect, useState } from "react";
 
 import { ChevronDownIcon } from "@heroicons/react/20/solid";

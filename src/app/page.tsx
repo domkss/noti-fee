@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CryptoTokken } from "@/lib/types/ClientTypes";
 import { Description, Field, Fieldset, Input, Label, Legend, Select, Button } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { cn } from "@/lib/client/UIHelperFunctions";
+import { cn } from "@/lib/utility/clientHelperFunctions";
 
 export default function Home() {
   const [selectedToken, setSelectedToken] = useState<CryptoTokken | null>(null);
@@ -17,6 +17,19 @@ export default function Home() {
     { id: 5, name: "Cardano", symbol: "ADA" },
     { id: 6, name: "Polkadot", symbol: "DOT" },
   ];
+
+  const getBinanceData = async () => {
+    let response = await fetch("/api/binance");
+    let data = await response.json();
+
+    for (let [key, value] of Object.entries(data.data)) {
+      console.log(key);
+    }
+  };
+
+  useEffect(() => {
+    getBinanceData();
+  }, []);
 
   useEffect(() => {
     console.log(selectedToken?.name);
