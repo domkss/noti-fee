@@ -1,48 +1,61 @@
 import "server-only";
 import { DUMMY_ALL_COIN_DATA } from "./_developer_data";
+import { CurrencyDetail } from "@/lib/types/TransferTypes";
+import { tokens as token_icons } from "@token-icons/core/metadata";
 
 class BinanceClient {
   private static instance: BinanceClient;
 
-  private all_currency_raw_data: { [key: string]: any }[] = [];
+  private rawCurrencyDataFromBinance: { [key: string]: any }[] = [];
 
-  private calculated_withdrawal_fees: Map<string, Map<string, number>> = new Map();
+  private calculatedWithdrawalFees: CurrencyDetail[] = [];
 
   public static getInstance(): BinanceClient {
     if (!this.instance) {
       this.instance = new BinanceClient();
-      this.instance.all_currency_raw_data = DUMMY_ALL_COIN_DATA;
+      this.instance.rawCurrencyDataFromBinance = DUMMY_ALL_COIN_DATA;
       this.instance.calculateWithdrawalFees();
     }
 
     return this.instance;
   }
 
-  public getCachedWithdrawalFees(): Map<string, Map<string, number>> {
-    return this.calculated_withdrawal_fees;
+  public getCachedWithdrawalFees(): CurrencyDetail[] {
+    return this.calculatedWithdrawalFees;
   }
 
   private calculateWithdrawalFees(): void {
-    this.calculated_withdrawal_fees.clear();
+    this.calculatedWithdrawalFees = [];
 
-    this.getSupportedCurrencySymbols().map((coin) => {
-      let networks = this.getSupportedNetworksOfCurrency(coin);
-      let feeMap = new Map<string, number>();
+    this.getSupportedCurrencies().map((currency) => {
+      let networks = this.getSupportedNetworksOfCurrency(currency.symbol);
+      let networkFeeArray: { networkName: string; value: number }[] = [];
 
       networks.map((network: string) => {
-        let fee = this.getNetworkFeeForCurrency(coin, network);
-        feeMap.set(network, fee);
+        let fee = this.getNetworkFeeForCurrency(currency.symbol, network);
+        networkFeeArray.push({ networkName: network, value: fee });
       });
-      this.calculated_withdrawal_fees.set(coin, feeMap);
+
+      //Token icons exists for the currency
+      let token = token_icons.find((token) => token.symbol.toLowerCase() === currency.symbol.toLowerCase());
+      if (token)
+        this.calculatedWithdrawalFees.push({
+          symbol: currency.symbol,
+          name: currency.name,
+          networkFees: networkFeeArray,
+        });
     });
   }
 
-  private getSupportedCurrencySymbols(): string[] {
-    return this.all_currency_raw_data.map((coin) => coin["coin"] as string);
+  private getSupportedCurrencies(): { name: string; symbol: string }[] {
+    return this.rawCurrencyDataFromBinance.map((currency) => ({
+      name: currency["name"],
+      symbol: currency["coin"],
+    }));
   }
 
   private getSupportedNetworksOfCurrency(currency_symbol: string): string[] {
-    const coin_data = this.all_currency_raw_data;
+    const coin_data = this.rawCurrencyDataFromBinance;
     for (const coin of coin_data) {
       if (coin["coin"] === currency_symbol) {
         return coin["networkList"].map((network: { [key: string]: any }) => network["network"] as string);
@@ -52,7 +65,7 @@ class BinanceClient {
   }
 
   private getNetworkFeeForCurrency(currency_symbol: string, network_name: string) {
-    const coin_data = this.all_currency_raw_data;
+    const coin_data = this.rawCurrencyDataFromBinance;
     for (const coin of coin_data) {
       if (coin["coin"] === currency_symbol) {
         for (const network of coin["networkList"]) {

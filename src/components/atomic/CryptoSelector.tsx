@@ -12,18 +12,18 @@ import { useEffect, useState } from "react";
 
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { TokenIcon } from "@token-icons/react";
-import { CryptoTokken } from "@/lib/types/ClientTypes";
+import { CurrencyDetail } from "@/lib/types/TransferTypes";
 
 interface CryptoSelectorProps {
   className?: string;
-  items: CryptoTokken[];
-  selected?: CryptoTokken | null;
-  onChange?: (token: CryptoTokken) => void;
+  items: CurrencyDetail[];
+  selected?: CurrencyDetail | null;
+  onChange?: (token: CurrencyDetail | null) => void;
 }
 
 function CryptoSelector(props: CryptoSelectorProps) {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState(props.selected || props.items[0]);
+  const [selected, setSelected] = useState<CurrencyDetail | null>(props.selected || props.items[0]);
 
   useEffect(() => {
     props.onChange?.(selected);
@@ -54,7 +54,9 @@ function CryptoSelector(props: CryptoSelectorProps) {
             onChange={(event) => setQuery(event.target.value)}
           />
           <ComboboxButton className="absolute inset-y-0 right-0 flex items-center justify-center px-2.5">
-            <TokenIcon key={selected.id} symbol={selected.symbol} size={30} variant="branded" />
+            {selected?.symbol ? (
+              <TokenIcon key={selected.symbol} symbol={selected.symbol} size={30} variant="branded" />
+            ) : null}
             <ChevronDownIcon className="pointer-events-none size-4 fill-black/60" aria-hidden="true" />
           </ComboboxButton>
         </div>
@@ -70,11 +72,11 @@ function CryptoSelector(props: CryptoSelectorProps) {
           >
             {filteredTokens.map((token) => (
               <ComboboxOption
-                key={token.id}
+                key={token.symbol}
                 value={token}
                 className="group flex cursor-default select-none items-center gap-2 rounded-lg bg-white px-3 py-1.5 data-[focus]:bg-black/10"
               >
-                <TokenIcon key={token.id} symbol={token.symbol} size={30} variant="branded" />
+                <TokenIcon key={token.symbol} symbol={token.symbol} size={30} variant="branded" />
 
                 <div className="text-balck text-sm/6">{token.name}</div>
               </ComboboxOption>

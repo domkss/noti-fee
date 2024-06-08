@@ -1,29 +1,22 @@
 "use client";
 import CryptoSelector from "@/components/atomic/CryptoSelector";
 import { useEffect, useState } from "react";
-import { CryptoTokken } from "@/lib/types/ClientTypes";
 import { Description, Field, Fieldset, Input, Label, Legend, Select, Button } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { cn } from "@/lib/utility/clientHelperFunctions";
+import { ResponseCurrentFees } from "@/lib/types/TransferTypes";
+import { CurrencyDetail } from "@/lib/types/TransferTypes";
 
 export default function Home() {
-  const [selectedToken, setSelectedToken] = useState<CryptoTokken | null>(null);
-
-  const cryptoTokkens = [
-    { id: 1, name: "Ethereum", symbol: "ETH" },
-    { id: 2, name: "Bitcoin", symbol: "BTC" },
-    { id: 3, name: "Ripple", symbol: "XRP" },
-    { id: 4, name: "Litecoin", symbol: "LTC" },
-    { id: 5, name: "Cardano", symbol: "ADA" },
-    { id: 6, name: "Polkadot", symbol: "DOT" },
-  ];
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
+  const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<CurrencyDetail[]>([]);
 
   const getBinanceData = async () => {
     let response = await fetch("/api/binance");
-    let data = await response.json();
+    let data: ResponseCurrentFees = await response.json();
 
-    for (let [key, value] of Object.entries(data.data)) {
-      console.log(key);
+    if (data.currentFees) {
+      setSupportedCurrenciesData(data.currentFees);
     }
   };
 
@@ -32,8 +25,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log(selectedToken?.name);
-  }, [selectedToken]);
+    console.log(selectedCurrency);
+  }, [selectedCurrency]);
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gradient-to-l from-emerald-400/40 to-cyan-400/40">
@@ -73,18 +66,18 @@ export default function Home() {
           <Label className="text-sm/6 font-medium text-black">Select Currency</Label>
           <CryptoSelector
             className="mt-1"
-            items={cryptoTokkens}
-            selected={selectedToken}
-            onChange={(token) => setSelectedToken(token)}
+            items={supportedCurrenciesData}
+            selected={selectedCurrency}
+            onChange={(currency) => setSelectedCurrency(currency)}
           />
         </Field>
         <Field>
           <Label className="text-sm/6 font-medium text-black">Select Network</Label>
           <CryptoSelector
             className="mt-1"
-            items={cryptoTokkens}
-            selected={selectedToken}
-            onChange={(token) => setSelectedToken(token)}
+            items={supportedCurrenciesData}
+            selected={selectedCurrency}
+            onChange={(currency) => setSelectedCurrency(currency)}
           />
         </Field>
         <Field>
