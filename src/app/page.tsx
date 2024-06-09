@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { Description, Field, Fieldset, Input, Label, Legend, Select, Button } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { cn } from "@/lib/utility/clientHelperFunctions";
-import { ResponseCurrentFees } from "@/lib/types/TransferTypes";
+import { NetworkFeeDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
 import { CurrencyDetail } from "@/lib/types/TransferTypes";
 
 export default function Home() {
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
   const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<CurrencyDetail[]>([]);
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkFeeDetail | null>(null);
 
   const getBinanceData = async () => {
     let response = await fetch("/api/binance");
@@ -25,12 +26,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log(selectedCurrency);
+    setSelectedNetwork(null);
   }, [selectedCurrency]);
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gradient-to-l from-emerald-400/40 to-cyan-400/40">
-      <Fieldset className="mt-16 min-w-[25%] space-y-6 rounded-xl border bg-gray-50/60 p-10 shadow-sm">
+      <Fieldset className="min-w-[25%] space-y-6 rounded-xl border bg-gray-50/60 p-10 shadow-sm max-sm:min-w-full">
         <Legend className="text-center text-base/7 font-semibold text-black">
           Save big on exchange withdrawal fees
           <br />
@@ -65,19 +66,21 @@ export default function Home() {
         <Field>
           <Label className="text-sm/6 font-medium text-black">Select Currency</Label>
           <CryptoSelector
+            type="currency"
             className="mt-1"
             items={supportedCurrenciesData}
             selected={selectedCurrency}
-            onChange={(currency) => setSelectedCurrency(currency)}
+            onChange={(currency) => setSelectedCurrency(currency as CurrencyDetail)}
           />
         </Field>
         <Field>
           <Label className="text-sm/6 font-medium text-black">Select Network</Label>
           <CryptoSelector
+            type="network"
             className="mt-1"
-            items={supportedCurrenciesData}
-            selected={selectedCurrency}
-            onChange={(currency) => setSelectedCurrency(currency)}
+            items={selectedCurrency?.networkFees || []}
+            selected={selectedNetwork}
+            onChange={(network) => setSelectedNetwork(network as NetworkFeeDetail)}
           />
         </Field>
         <Field>
