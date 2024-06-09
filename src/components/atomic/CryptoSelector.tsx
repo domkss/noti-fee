@@ -94,15 +94,10 @@ function CryptoSelector(props: CryptoSelectorProps) {
                 value={item}
                 className="group flex cursor-default select-none items-center gap-2 rounded-lg bg-white px-3 py-1.5 data-[focus]:bg-black/10"
               >
-                {props.type === "currency" ? (
+                {props.type === "currency" || getNetworkBaseName(item.name) === "" ? (
                   <TokenIcon key={item.symbol} symbol={item.symbol} size={32} variant="branded" />
                 ) : (
-                  <NetworkIcon
-                    key={item.symbol}
-                    network={getNetworkBaseName(item.name).trim()}
-                    size={32}
-                    variant="branded"
-                  />
+                  <NetworkIcon key={item.symbol} network={getNetworkBaseName(item.name)} size={32} variant="branded" />
                 )}
 
                 <div className="text-balck text-sm/6">{item.name + " (" + item.symbol + ")"}</div>
