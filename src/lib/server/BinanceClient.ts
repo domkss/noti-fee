@@ -35,16 +35,24 @@ class BinanceClient {
 
     this.getSupportedCurrencies().map((currency) => {
       let networks = this.getSupportedNetworksOfCurrency(currency.symbol);
-      let networkFeeArray: { name: string; symbol: string; value: number; valueInUSD: number | null }[] = [];
+      let networkFeeArray: { name: string; network: string; fee: number; feeInUSD: number | null; coin: string }[] = [];
 
-      networks.map((network: { name: string; symbol: string }) => {
-        let fee = this.getNetworkFeeForCurrency(currency.symbol, network.symbol);
+      networks.map((item: { name: string; network: string; coin: string }) => {
+        let fee = this.getNetworkFeeForCurrency(currency.symbol, item.network);
+
+        let feeInUSD = CoinCapClient.getInstance()?.getUsdPriceBySymbol(currency.symbol) ?? null;
+
+        if (feeInUSD && fee) {
+          feeInUSD = feeInUSD * fee;
+        }
+
         if (fee === null) return;
         networkFeeArray.push({
-          name: network.name,
-          symbol: network.symbol,
-          value: fee,
-          valueInUSD: CoinCapClient.getInstance()?.getUsdPriceBySymbol(currency.symbol) || null,
+          name: item.name,
+          network: item.network,
+          coin: item.coin,
+          fee: fee,
+          feeInUSD: feeInUSD,
         });
       });
 
@@ -60,8 +68,8 @@ class BinanceClient {
 
     //Sort by market cap
     this.calculatedWithdrawalFees.sort((a, b) => {
-      const rankA = CoinCapClient.getInstance()?.getRankBySymbol(a.symbol) || Infinity;
-      const rankB = CoinCapClient.getInstance()?.getRankBySymbol(b.symbol) || Infinity;
+      const rankA = CoinCapClient.getInstance()?.getRankBySymbol(a.symbol) ?? Infinity;
+      const rankB = CoinCapClient.getInstance()?.getRankBySymbol(b.symbol) ?? Infinity;
 
       return rankA - rankB;
     });
@@ -79,15 +87,16 @@ class BinanceClient {
       }));
   }
 
-  private getSupportedNetworksOfCurrency(currency_symbol: string): { name: string; symbol: string }[] {
+  private getSupportedNetworksOfCurrency(currency_symbol: string): { name: string; network: string; coin: string }[] {
     const coin_data = this.rawCurrencyDataFromBinance;
     for (const coin of coin_data) {
       if (coin["coin"] === currency_symbol) {
         return coin["networkList"]
-          .filter((network: { [key: string]: any }) => network["withdrawEnable"] === true)
-          .map((network: { [key: string]: any }) => ({
-            symbol: network["network"] as string,
-            name: network["name"] as string,
+          .filter((item: { [key: string]: any }) => item["withdrawEnable"] === true)
+          .map((item: { [key: string]: any }) => ({
+            network: item["network"] as string,
+            name: item["name"] as string,
+            coin: item["coin"] as string,
           }));
       }
     }

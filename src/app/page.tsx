@@ -6,6 +6,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { cn } from "@/lib/utility/clientHelperFunctions";
 import { NetworkFeeDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
 import { CurrencyDetail } from "@/lib/types/TransferTypes";
+import { getCurrentFeePlaceholder } from "@/lib/utility/clientHelperFunctions";
 
 export default function Home() {
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
@@ -66,7 +67,6 @@ export default function Home() {
         <Field>
           <Label className="text-sm/6 font-medium text-black">Select Currency</Label>
           <CryptoSelector
-            type="currency"
             className="mt-1"
             items={supportedCurrenciesData}
             selected={selectedCurrency}
@@ -76,9 +76,8 @@ export default function Home() {
         <Field>
           <Label className="text-sm/6 font-medium text-black">Select Network</Label>
           <CryptoSelector
-            type="network"
             className="mt-1"
-            items={selectedCurrency?.networkFees || []}
+            items={selectedCurrency?.networkFees ?? []}
             selected={selectedNetwork}
             onChange={(network) => setSelectedNetwork(network as NetworkFeeDetail)}
           />
@@ -86,6 +85,7 @@ export default function Home() {
         <Field>
           <Label className="text-sm/6 font-medium text-black">Target Fee</Label>
           <Input
+            placeholder={getCurrentFeePlaceholder(selectedNetwork)}
             className={cn(
               "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",

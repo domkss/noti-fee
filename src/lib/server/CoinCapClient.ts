@@ -37,7 +37,7 @@ class CoinCapClient {
   public getRankBySymbol(symbol: string): number {
     if (this.rankBySymbol.size < 100) return -1;
     if (this.rankBySymbol.has(symbol)) {
-      return this.rankBySymbol.get(symbol) || Infinity;
+      return this.rankBySymbol.get(symbol) ?? Infinity;
     }
     return Infinity;
   }
@@ -45,7 +45,7 @@ class CoinCapClient {
   public getUsdPriceBySymbol(symbol: string): number | null {
     if (this.usdPriceBySymbol.size < 100) return null;
     if (this.usdPriceBySymbol.has(symbol)) {
-      return this.usdPriceBySymbol.get(symbol) || null;
+      return this.usdPriceBySymbol.get(symbol) ?? null;
     }
     return null;
   }

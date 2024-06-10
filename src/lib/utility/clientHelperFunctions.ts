@@ -1,6 +1,7 @@
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { networks } from "@token-icons/core/metadata";
+import { NetworkFeeDetail } from "../types/TransferTypes";
 
 /* Class Name concatenation with tailwindMerge and clsx */
 export const cn = (...classes: ClassValue[]) => twMerge(clsx(...classes));
@@ -34,4 +35,24 @@ const nameMapping: { [key: string]: string } = {
   kavaevm: "kava",
   opbnb: "bnb smart chain",
   "asset hub": "polkadot",
+  "bnb beacon chain": "bnb smart chain",
+};
+
+export const getCurrentFeePlaceholder = (selectedNetwork: NetworkFeeDetail | null): string => {
+  if (!selectedNetwork) return "";
+
+  let feeInUSD = "";
+
+  if (selectedNetwork.feeInUSD) {
+    let str = selectedNetwork.feeInUSD.toString();
+
+    let match = str.match(/^0\.0*[1-9]\d{0,1}|^[1-9]\d*\.\d{2}/);
+    if (match) {
+      feeInUSD = " (" + match[0] + " USD)";
+    } else {
+      feeInUSD = " (" + str + " USD)";
+    }
+  }
+
+  return selectedNetwork.fee.toString() + selectedNetwork.coin + feeInUSD;
 };

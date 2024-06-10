@@ -6,9 +6,18 @@ export interface CurrencyDetail {
 
 export interface NetworkFeeDetail {
   name: string;
-  symbol: string;
-  value: number;
-  valueInUSD: number | null;
+  network: string;
+  coin: string;
+  fee: number;
+  feeInUSD: number | null;
+}
+
+export function isCurrencyDetail(variable: any): variable is CurrencyDetail {
+  return (
+    (variable as CurrencyDetail).symbol !== undefined &&
+    (variable as CurrencyDetail).name !== undefined &&
+    Array.isArray((variable as CurrencyDetail).networkFees)
+  );
 }
 
 export interface ResponseCurrentFees {
