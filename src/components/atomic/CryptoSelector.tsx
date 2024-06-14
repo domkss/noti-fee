@@ -92,18 +92,25 @@ function CryptoSelector(props: CryptoSelectorProps) {
                 className="group flex cursor-default select-none items-center gap-2 rounded-lg bg-white px-3 py-1.5 data-[focus]:bg-black/10"
               >
                 {isCurrencyDetail(item) || getNetworkBaseName(item.name) === "" ? (
-                  <TokenIcon
-                    key={key}
-                    symbol={isCurrencyDetail(item) ? item.symbol : item.network}
-                    size={32}
-                    variant="branded"
-                  />
+                  <div className="h-8 w-8">
+                    <TokenIcon
+                      key={key}
+                      symbol={isCurrencyDetail(item) ? item.symbol : item.network}
+                      size={32}
+                      variant="branded"
+                    />
+                  </div>
                 ) : (
-                  <NetworkIcon key={key} network={getNetworkBaseName(item.name)} size={32} variant="branded" />
+                  <div className="h-8 w-8">
+                    <NetworkIcon key={key} network={getNetworkBaseName(item.name)} size={32} variant="branded" />
+                  </div>
                 )}
 
                 <div className="text-balck text-sm/6">
-                  {item.name + " (" + (isCurrencyDetail(item) ? item.symbol : item.network) + ")"}
+                  {item.name.replace(/^\w/, (c) => c.toUpperCase()) +
+                    " (" +
+                    (isCurrencyDetail(item) ? item.symbol : item.network) +
+                    ")"}
                 </div>
               </ComboboxOption>
             ))}

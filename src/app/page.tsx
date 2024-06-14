@@ -7,11 +7,17 @@ import { cn } from "@/lib/utility/clientHelperFunctions";
 import { NetworkFeeDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
 import { CurrencyDetail } from "@/lib/types/TransferTypes";
 import { getCurrentFeePlaceholder } from "@/lib/utility/clientHelperFunctions";
+import { parseUserTargetFeeInputAfterWait } from "@/lib/utility/clientHelperFunctions";
 
 export default function Home() {
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
   const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<CurrencyDetail[]>([]);
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkFeeDetail | null>(null);
+  const [targetFee, setTargetFee] = useState<{ value: string; compatible: boolean | null }>({
+    value: "",
+    compatible: null,
+  });
+  let currentFee = getCurrentFeePlaceholder(selectedNetwork);
 
   const getBinanceData = async () => {
     let response = await fetch("/api/binance");
@@ -36,8 +42,17 @@ export default function Home() {
         <Legend className="text-center text-base/7 font-semibold text-black">
           Save big on exchange withdrawal fees
           <br />
-          <div className="font-normal">Get notified when the price is right</div>
+          <div className="font-normal">Get notified when the fee is right</div>
         </Legend>
+        <Field>
+          <Label className="text-sm/6 font-medium text-black">Your Email Address</Label>
+          <Input
+            className={cn(
+              "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
+              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
+            )}
+          />
+        </Field>
         <Field>
           <Label className="text-sm/6 font-medium text-black">Select Exchange</Label>
           <Description className="text-sm">Currently only Binance is supported.</Description>
@@ -85,25 +100,38 @@ export default function Home() {
         <Field>
           <Label className="text-sm/6 font-medium text-black">Target Fee</Label>
           <Input
-            placeholder={getCurrentFeePlaceholder(selectedNetwork)}
+            type="text"
+            value={targetFee.value}
+            onChange={(e) => {
+              setTargetFee({ value: e.target.value, compatible: null });
+              parseUserTargetFeeInputAfterWait(e.target.value, currentFee).then((result: any) => {
+                setTargetFee({ value: result.value, compatible: result.compatible });
+              });
+            }}
+            placeholder={currentFee}
             className={cn(
               "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
             )}
           />
+          <div className="text-center text-sm/6 text-black">Current Withdrawal Fee: {currentFee}</div>
+          <div className="text-center text-sm/6 text-black">
+            Notify me when the fee is under:{" "}
+            <span
+              className={cn(
+                "font-semibold",
+                { "text-green-600": targetFee.compatible },
+                { "text-red-600": targetFee.compatible === false },
+              )}
+            >
+              {targetFee.compatible ? targetFee.value : targetFee.compatible === false ? "Invalid Target Fee" : "-"}
+            </span>
+          </div>
         </Field>
-        <Field>
-          <Label className="text-sm/6 font-medium text-black">Your Email Address</Label>
-          <Input
-            className={cn(
-              "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
-              "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
-            )}
-          />
-        </Field>
+
         <Field className="text-center">
           <Button className="mt-3 rounded bg-cyan-500 px-4 py-2 text-sm text-white data-[active]:bg-cyan-600 data-[hover]:bg-cyan-600">
-            Notify Me
+            Set Up Notification
           </Button>
         </Field>
       </Fieldset>

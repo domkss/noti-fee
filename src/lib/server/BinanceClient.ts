@@ -1,7 +1,6 @@
 import "server-only";
 import { BINANCE_DUMMY_COIN_DATA } from "./_developer_data";
 import { CurrencyDetail } from "@/lib/types/TransferTypes";
-import { tokens as token_icons } from "@token-icons/core/metadata";
 import CoinCapClient from "./CoinCapClient";
 
 class BinanceClient {
@@ -56,9 +55,7 @@ class BinanceClient {
         });
       });
 
-      //Token icons exists for the currency
-      let token = token_icons.find((token) => token.symbol.toLowerCase() === currency.symbol.toLowerCase());
-      if (token && networkFeeArray.length > 0)
+      if (networkFeeArray.length > 0)
         this.calculatedWithdrawalFees.push({
           symbol: currency.symbol,
           name: currency.name,
@@ -75,7 +72,7 @@ class BinanceClient {
     });
 
     //Keep only the top 75 currency
-    this.calculatedWithdrawalFees = this.calculatedWithdrawalFees.slice(0, 75);
+    this.calculatedWithdrawalFees = this.calculatedWithdrawalFees.slice(0, 100);
   }
 
   private getSupportedCurrencies(): { name: string; symbol: string }[] {
