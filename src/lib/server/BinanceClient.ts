@@ -34,12 +34,12 @@ class BinanceClient {
 
     this.getSupportedCurrencies().map((currency) => {
       let networks = this.getSupportedNetworksOfCurrency(currency.symbol);
-      let networkFeeArray: { name: string; network: string; fee: number; feeInUSD: number | null; coin: string }[] = [];
+      let networkFeeArray: { name: string; network: string; fee: number; feeInUSD: number; coin: string }[] = [];
 
       networks.map((item: { name: string; network: string; coin: string }) => {
         let fee = this.getNetworkFeeForCurrency(currency.symbol, item.network);
 
-        let feeInUSD = CoinCapClient.getInstance()?.getUsdPriceBySymbol(currency.symbol) ?? null;
+        let feeInUSD = CoinCapClient.getInstance()?.getUsdPriceBySymbol(currency.symbol) ?? 0;
 
         if (feeInUSD && fee) {
           feeInUSD = feeInUSD * fee;

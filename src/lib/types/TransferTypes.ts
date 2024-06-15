@@ -9,7 +9,7 @@ export interface NetworkFeeDetail {
   network: string;
   coin: string;
   fee: number;
-  feeInUSD: number | null;
+  feeInUSD: number;
 }
 
 export function isCurrencyDetail(variable: any): variable is CurrencyDetail {

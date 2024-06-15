@@ -87,14 +87,18 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
     const regex = /(\d+(\.\d+)?)\s?(\w+)\s?\((\d+(\.\d+)?)\s?(\w+)\)/;
     const match = suggestion.match(regex);
     if (match) {
+      const cryptoValue = parseFloat(match[1]);
+      const fiatValue = parseFloat(match[4]);
       const cryptoDecimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
       const fiatDecimals = match[4].includes(".") ? match[4].split(".")[1].length : 0;
 
       console.log(cryptoDecimals, fiatDecimals);
       return {
         cryptoCurrency: match[3],
+        cryptoValue,
         cryptoDecimals,
         fiatCurrency: match[6],
+        fiatValue,
         fiatDecimals,
       };
     }
@@ -129,7 +133,7 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
     return { value: input, compatible: false };
   }
 
-  const { cryptoCurrency, cryptoDecimals, fiatCurrency, fiatDecimals } = currencyData;
+  const { cryptoCurrency, cryptoValue, cryptoDecimals, fiatCurrency, fiatValue, fiatDecimals } = currencyData;
   const currencies = [cryptoCurrency, fiatCurrency];
   const inputParts = input.trim().split(/\s+/);
 
@@ -158,7 +162,7 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
     }
 
     // Infer the most probable currency and use corresponding decimal places
-    if (value.includes(".")) {
+    if (parsedValue * (fiatValue / cryptoValue) < Math.abs(parsedValue - fiatValue)) {
       const roundedValue = roundUp(parsedValue, cryptoDecimals);
       return { value: `${roundedValue} ${cryptoCurrency}`, compatible: true };
     } else {
@@ -170,4 +174,4 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
   }
 };
 
-export const parseUserTargetFeeInputAfterWait = debounce(parseUserTargetFeeInput, 3000);
+export const parseUserTargetFeeInputAfterWait = debounce(parseUserTargetFeeInput, 2500);
