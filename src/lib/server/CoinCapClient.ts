@@ -1,4 +1,5 @@
 import { COINCAP_DUMMY_DATA } from "./_developer_data";
+import logger from "../utility/logger";
 
 class CoinCapClient {
   private static instance: CoinCapClient;
@@ -6,10 +7,10 @@ class CoinCapClient {
   private rankBySymbol: Map<string, number> = new Map<string, number>();
   private usdPriceBySymbol: Map<string, number> = new Map<string, number>();
 
-  public static getInstance(): CoinCapClient | null {
+  public static async getInstance(): Promise<CoinCapClient | null> {
     if (!this.instance) {
       let instance = new CoinCapClient();
-      let requestSuccessful = instance.getDataFromCoinCap();
+      let requestSuccessful = await instance.getDataFromCoinCap();
 
       if (!requestSuccessful) {
         return null;
@@ -22,9 +23,23 @@ class CoinCapClient {
     return CoinCapClient.instance;
   }
 
-  private getDataFromCoinCap(): boolean {
-    this.rawCurrencyDataFromCoinCap = COINCAP_DUMMY_DATA.data;
-    return true;
+  private async getDataFromCoinCap(): Promise<boolean> {
+    if (process.env.NODE_ENV === "development") {
+      this.rawCurrencyDataFromCoinCap = COINCAP_DUMMY_DATA.data;
+      return true;
+    }
+
+    //Get Data from CoinCap API
+    logger.info("CoinCap Client: Fetching currency metadata from CoinCap API.");
+
+    const REQUEST_URL = "https://api.coincap.io/v2/assets?limit=200";
+    let response = await fetch(REQUEST_URL);
+    if (response.ok) {
+      let jsonBody = await response.json();
+      this.rawCurrencyDataFromCoinCap = jsonBody.data;
+      return true;
+    }
+    return false;
   }
 
   private processRawData(): void {

@@ -1,5 +1,6 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import Image from "next/image";
 
 export default function FAQView() {
   return (
@@ -7,7 +8,10 @@ export default function FAQView() {
       <div className="p-4 text-xl font-semibold">Frequently Asked Questions:</div>
       <Disclosure as="div" className="p-6" defaultOpen={true}>
         <DisclosureButton className="group flex w-full items-center justify-between">
-          <span className="text-md font-medium text-black group-data-[hover]:text-black">What is NotiFee?</span>
+          <span className="text-md flex items-center font-medium text-black group-data-[hover]:text-black">
+            What is NotiFee?
+          </span>
+
           <ChevronDownIcon className="size-5 fill-black group-data-[open]:rotate-180 group-data-[hover]:fill-black" />
         </DisclosureButton>
         <DisclosurePanel className="text-md mt-2 text-gray-800">

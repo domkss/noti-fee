@@ -4,7 +4,7 @@ import BinanceClient from "@/lib/server/BinanceClient";
 import { CurrencyDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
 
 export async function GET(req: NextRequest, res: NextResponse) {
-  let binanceClient = BinanceClient.getInstance();
+  let binanceClient = await BinanceClient.getInstance();
 
   let currentFees: CurrencyDetail[] = [];
   if (binanceClient) currentFees = binanceClient.getCachedWithdrawalFees();

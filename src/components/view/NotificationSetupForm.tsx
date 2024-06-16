@@ -47,12 +47,12 @@ export default function NotificationSetupForm() {
   }, [selectedCurrency]);
 
   return (
-    <Fieldset className="min-w-[35%] space-y-6 border-r bg-slate-50/60 p-10 shadow-sm max-md:min-w-full md:px-16">
+    <Fieldset className="min-w-[35%] space-y-6 border-r bg-slate-50/60 p-10 shadow-sm max-md:min-w-full max-sm:pt-2 md:px-16">
       <Legend className="flex flex-col items-center md:flex-row">
-        <Image className="mr-3" src="/icons/header_icon_crypto.svg" alt="logo" width={100} height={100} />
+        <Image className="mr-3" src="/icons/favicon.svg" alt="logo" width={80} height={80} />
         <div className="text-center text-base/7 font-semibold text-black">
           <div>Save on exchange withdrawal fees</div>
-          <div className="text-nowrap font-normal">Get notified when the transaction fee is right</div>
+          <div className=" font-normal">Get notified when the transaction fee is right</div>
         </div>
       </Legend>
       <Field>
