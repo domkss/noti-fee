@@ -174,4 +174,4 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
   }
 };
 
-export const parseUserTargetFeeInputAfterWait = debounce(parseUserTargetFeeInput, 2500);
+export const parseUserTargetFeeInputAfterWait = debounce(parseUserTargetFeeInput, 2000);

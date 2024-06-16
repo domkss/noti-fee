@@ -66,7 +66,9 @@ export default function NotificationSetupForm() {
       </Field>
       <Field>
         <Label className="text-sm/6 font-medium text-black">Select Exchange</Label>
-        <Description className="text-sm">Currently only Binance (Withdrawal) fee is supported.</Description>
+        <Description className="text-sm">
+          Currently, notifications are only supported for Binance withdrawal fees.
+        </Description>
         <div className="relative">
           <Select
             className={cn(

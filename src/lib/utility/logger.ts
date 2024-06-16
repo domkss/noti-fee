@@ -17,13 +17,4 @@ const logger = createLogger({
   ],
 });
 
-// If we're not in production, log to the console as well
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new transports.Console({
-      format: combine(timestamp(), myFormat),
-    }),
-  );
-}
-
 export default logger;
