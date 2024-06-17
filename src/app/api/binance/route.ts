@@ -1,4 +1,3 @@
-"use server";
 import { NextRequest, NextResponse } from "next/server";
 import BinanceClient from "@/lib/server/BinanceClient";
 import { CurrencyDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
