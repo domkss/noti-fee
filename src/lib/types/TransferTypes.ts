@@ -23,3 +23,11 @@ export function isCurrencyDetail(variable: any): variable is CurrencyDetail {
 export interface ResponseCurrentFees {
   currentFees: CurrencyDetail[];
 }
+
+export interface NotificationType {
+  email: string;
+  exchange: string;
+  currency: string;
+  network: string;
+  targetFee: string;
+}
