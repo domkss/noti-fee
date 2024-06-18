@@ -28,7 +28,7 @@ class Mailer {
     });
 
     const token = generateToken(notification);
-    const verificationLink = `http://your-domain.com/api/verify?token=${token}`;
+    const verificationLink = `${process.env.SERVER_DOMAIN || "site-name"}/api/verify?token=${token}`;
 
     const emailTemplatePath = "resources/email_templates/enable_notification_email.html";
     let data = await fs.readFile(emailTemplatePath, "utf-8").catch(console.error);
@@ -57,7 +57,7 @@ class Mailer {
         if (error) {
           return logger.error(error);
         }
-        logger.info("Verification email sent: " + info.response);
+        logger.info("Verification email sent: Email= " + notification.email + " Info= " + info.response);
       });
     }
   }

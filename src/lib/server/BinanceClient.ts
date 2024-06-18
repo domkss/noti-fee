@@ -12,6 +12,8 @@ class BinanceClient {
 
   private calculatedWithdrawalFees: CurrencyDetail[] = [];
 
+  private constructor() {}
+
   public static async getInstance(): Promise<BinanceClient | null> {
     if (!this.instance) {
       let instance = new BinanceClient();

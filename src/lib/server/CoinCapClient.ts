@@ -7,6 +7,8 @@ class CoinCapClient {
   private rankBySymbol: Map<string, number> = new Map<string, number>();
   private usdPriceBySymbol: Map<string, number> = new Map<string, number>();
 
+  private constructor() {}
+
   public static async getInstance(): Promise<CoinCapClient | null> {
     if (!this.instance) {
       let instance = new CoinCapClient();
