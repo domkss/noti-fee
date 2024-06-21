@@ -8,7 +8,7 @@ const myFormat = printf(({ level, message, timestamp }) => {
 });
 
 // Create a logger instance
-const logger = createLogger({
+const Logger = createLogger({
   level: "info", // Set the default logging level
   format: combine(timestamp(), myFormat),
   transports: [
@@ -17,4 +17,4 @@ const logger = createLogger({
   ],
 });
 
-export default logger;
+export default Logger;

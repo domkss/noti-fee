@@ -1,9 +1,9 @@
-import Mailer from "@/lib/service/Mailer";
-import { NotificationType } from "@/lib/types/TransferTypes";
 import { NextRequest, NextResponse } from "next/server";
+import Mailer from "@/lib/service/Mailer";
+import { FeeNotification } from "@/lib/types/TransferTypes";
 
 export async function GET(req: NextRequest, res: NextResponse) {
-  let notification: NotificationType = {
+  let notification: FeeNotification = {
     email: "notifee_dev.roster808@passmail.net",
     exchange: "Binance",
     currency: "Bitcoin (BTC)",
@@ -12,6 +12,5 @@ export async function GET(req: NextRequest, res: NextResponse) {
   };
 
   Mailer.sendVerificationEmail(notification);
-
-  return NextResponse.json({ message: "Hello, World!" });
+  return Response.json("Hello World!");
 }

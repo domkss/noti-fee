@@ -1,5 +1,5 @@
 import { COINCAP_DUMMY_DATA } from "./_developer_data";
-import logger from "../utility/logger";
+import Logger from "../utility/Logger";
 
 class CoinCapClient {
   private static instance: CoinCapClient;
@@ -32,7 +32,7 @@ class CoinCapClient {
     }
 
     //Get Data from CoinCap API
-    logger.info("CoinCap Client: Fetching currency metadata from CoinCap API.");
+    Logger.info("CoinCap Client: Fetching currency metadata from CoinCap API.");
 
     const REQUEST_URL = "https://api.coincap.io/v2/assets?limit=200";
     let response = await fetch(REQUEST_URL);

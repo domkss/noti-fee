@@ -2,7 +2,7 @@
 import FAQView from "@/components/view/FAQView";
 import NotificationSetupForm from "@/components/view/NotificationSetupForm";
 
-export default function Home() {
+function Home() {
   return (
     <main className="flex min-h-screen flex-col md:flex-row ">
       <NotificationSetupForm />
@@ -15,3 +15,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default Home;

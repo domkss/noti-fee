@@ -2,7 +2,7 @@ import "server-only";
 import { BINANCE_DUMMY_COIN_DATA } from "./_developer_data";
 import { CurrencyDetail } from "@/lib/types/TransferTypes";
 import CoinCapClient from "./CoinCapClient";
-import logger from "../utility/logger";
+import Logger from "../utility/Logger";
 import crypto from "crypto";
 
 class BinanceClient {
@@ -126,12 +126,12 @@ class BinanceClient {
     }
 
     //Get Data from Binance API
-    logger.info("Binance Client: Fetching currency data from Binance API.");
+    Logger.info("Binance Client: Fetching currency data from Binance API.");
 
     // Get the server time
     const timestamp = await this.getBinanceServerTime();
     if (!timestamp) {
-      logger.error("Binance Client: Failed to get server time from Binance API.");
+      Logger.error("Binance Client: Failed to get server time from Binance API.");
       return false;
     }
 
@@ -164,7 +164,7 @@ class BinanceClient {
     });
 
     if (!response.ok || response.status !== 200) {
-      logger.error("Binance Client: Failed to get currency data from Binance API.");
+      Logger.error("Binance Client: Failed to get currency data from Binance API.");
       return false;
     }
 

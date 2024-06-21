@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import BinanceClient from "@/lib/server/BinanceClient";
+import BinanceClient from "@/lib/third_party/BinanceClient";
 import { CurrencyDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
 
 export async function GET(req: NextRequest, res: NextResponse) {

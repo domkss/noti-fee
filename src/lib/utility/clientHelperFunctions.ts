@@ -1,32 +1,7 @@
-import clsx, { ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { networks } from "@token-icons/core/metadata";
 import { NetworkFeeDetail } from "../types/TransferTypes";
 import leven from "leven";
-
-/* Class Name concatenation with tailwindMerge and clsx */
-export const cn = (...classes: ClassValue[]) => twMerge(clsx(...classes));
-
-export const debounce = (fn: Function, ms = 300) => {
-  let timeoutId: ReturnType<typeof setTimeout>;
-  let result: any;
-
-  function executedFunction(this: any, ...args: any[]) {
-    clearTimeout(timeoutId);
-    return new Promise((resolve) => {
-      timeoutId = setTimeout(() => {
-        result = fn.apply(this, args);
-        resolve(result);
-      }, ms);
-    });
-  }
-
-  executedFunction.cancel = function () {
-    clearTimeout(timeoutId);
-  };
-
-  return executedFunction;
-};
+import { debounce } from "./UtilityFunctions";
 
 /* Network Base Name Mapping */
 const nameMapping: { [key: string]: string } = {

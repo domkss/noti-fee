@@ -1,4 +1,5 @@
 import "server-only";
+
 export const BINANCE_DUMMY_COIN_DATA = [
   {
     coin: "AGLD",

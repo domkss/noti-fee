@@ -1,18 +1,18 @@
 import fs from "fs/promises";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import logger from "../utility/logger";
-import { NotificationType } from "../types/TransferTypes";
+import Logger from "../utility/Logger";
+import { FeeNotification } from "../types/TransferTypes";
 
 class Mailer {
-  static async sendVerificationEmail(notification: NotificationType) {
+  static async sendVerificationEmail(notification: FeeNotification) {
     const host = process.env.NODEMAILER_ENDPOINT;
     const port = process.env.NODEMAILER_PORT;
     const user = process.env.NODEMAILER_USER;
     const password = process.env.NODEMAILER_PASSWD;
 
     if (!host || !port || !user || !password) {
-      logger.error("NodeMailer Env configuration is incorrect");
+      Logger.error("NodeMailer Env configuration is incorrect");
       return;
     }
 
@@ -28,7 +28,7 @@ class Mailer {
     });
 
     const token = generateToken(notification);
-    const verificationLink = `${process.env.SERVER_DOMAIN || "site-name"}/api/verify?token=${token}`;
+    const verificationLink = `${process.env.SERVER_DOMAIN || "site-name"}/verify?token=${token}`;
 
     const emailTemplatePath = "resources/email_templates/enable_notification_email.html";
     let data = await fs.readFile(emailTemplatePath, "utf-8").catch(console.error);
@@ -53,17 +53,19 @@ class Mailer {
         subject: "Enable NotiFee Notification",
         html: data,
       };
-      transport.sendMail(mailOptions, (error: any, info: any) => {
+      console.log("Token: " + placeholders.action_url);
+      /*transport.sendMail(mailOptions, (error: any, info: any) => {
         if (error) {
           return logger.error(error);
         }
         logger.info("Verification email sent: Email= " + notification.email + " Info= " + info.response);
       });
+      */
     }
   }
 }
 
-const generateToken = (notification: NotificationType) => {
+const generateToken = (notification: FeeNotification) => {
   if (process.env.JWT_SECRET) return jwt.sign(notification, process.env.JWT_SECRET, { expiresIn: "1h" });
   throw new Error("JWT_SECRET is not defined in the environment variables.");
 };

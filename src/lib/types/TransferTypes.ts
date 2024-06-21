@@ -24,7 +24,7 @@ export interface ResponseCurrentFees {
   currentFees: CurrencyDetail[];
 }
 
-export interface NotificationType {
+export interface FeeNotification {
   email: string;
   exchange: string;
   currency: string;

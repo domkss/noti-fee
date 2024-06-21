@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utility/clientHelperFunctions";
+import { cn } from "@/lib/utility/UtilityFunctions";
 
 interface SpinnerProps {
   className?: string;

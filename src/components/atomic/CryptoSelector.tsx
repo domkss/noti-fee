@@ -7,13 +7,13 @@ import {
   ComboboxOptions,
   Transition,
 } from "@headlessui/react";
-import { cn } from "@/lib/utility/clientHelperFunctions";
+import { cn } from "@/lib/utility/UtilityFunctions";
 import { useEffect, useState } from "react";
 
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { TokenIcon, NetworkIcon } from "@token-icons/react";
 import { CurrencyDetail, NetworkFeeDetail } from "@/lib/types/TransferTypes";
-import { getNetworkBaseName } from "@/lib/utility/clientHelperFunctions";
+import { getNetworkBaseName } from "@/lib/utility/ClientHelperFunctions";
 import { isCurrencyDetail } from "@/lib/types/TransferTypes";
 
 interface CryptoSelectorProps {
