@@ -30,7 +30,7 @@ export default function FAQView() {
         </DisclosureButton>
         <DisclosurePanel className="text-md mt-2 text-gray-800">
           With a one-time <span className="font-bold text-red-500 line-through">($15)</span>
-          <span className="font-bold text-green-600"> $6.99 </span>purchase, you can set up 200 notifications. <br />
+          <span className="font-bold text-green-600"> $9.99 </span>purchase, you can set up 200 notifications. <br />
           The purchase is linked to your email address and valid until you reach the 200 notification limit.
           <br />
           This small payment helps us cover the costs of running the service and in most cases can be offset by savings

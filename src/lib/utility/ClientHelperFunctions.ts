@@ -67,7 +67,6 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
       const cryptoDecimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
       const fiatDecimals = match[4].includes(".") ? match[4].split(".")[1].length : 0;
 
-      console.log(cryptoDecimals, fiatDecimals);
       return {
         cryptoCurrency: match[3],
         cryptoValue,
@@ -150,3 +149,12 @@ const parseUserTargetFeeInput = (input: string, suggestion: string): { value: st
 };
 
 export const parseUserTargetFeeInputAfterWait = debounce(parseUserTargetFeeInput, 2000);
+
+export const SelectableExchanges = {
+  Binance_Withdrawal: { id: "binance_withdrawal", name: "Binance (Withdrawal)" },
+  Okx_Withdrawal: { id: "okx_withdrawal", name: "OKX (Withdrawal)" },
+  Bybit_Withdrawal: { id: "bybit_withdrawal", name: "Bybit (Withdrawal)" },
+  Kraken_Withdrawal: { id: "kraken_withdrawal", name: "Kraken (Withdrawal)" },
+  Coinbase_Withdrawal: { id: "coinbase_withdrawal", name: "Coinbase (Withdrawal)" },
+  Htx_Withdrawal: { id: "htx_withdrawal", name: "HTX (Withdrawal)" },
+} as const;

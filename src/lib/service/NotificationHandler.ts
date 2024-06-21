@@ -1,7 +1,7 @@
-import { FeeNotification } from "@/lib/types/TransferTypes";
+import { FeeNotificationConfig } from "@/lib/types/TransferTypes";
 import jwt from "jsonwebtoken";
 
-export const getNotificationDataFromJWT = (token: string): Promise<FeeNotification> => {
+export const getNotificationDataFromJWT = (token: string): Promise<FeeNotificationConfig> => {
   return new Promise((resolve, reject) => {
     if (!process.env.JWT_SECRET) {
       reject(new Error("JWT_SECRET is not defined in the environment variables."));
@@ -16,7 +16,7 @@ export const getNotificationDataFromJWT = (token: string): Promise<FeeNotificati
           reject(new Error("Invalid token"));
         }
       } else {
-        resolve(decoded as FeeNotification);
+        resolve(decoded as FeeNotificationConfig);
       }
     });
   });

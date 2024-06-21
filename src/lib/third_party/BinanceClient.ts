@@ -12,6 +12,8 @@ class BinanceClient {
 
   private calculatedWithdrawalFees: CurrencyDetail[] = [];
 
+  private lastDataUpdateTimeStamp: number = 0;
+
   private constructor() {}
 
   public static async getInstance(): Promise<BinanceClient | null> {
@@ -27,6 +29,24 @@ class BinanceClient {
     }
 
     return this.instance;
+  }
+
+  public async refreshData(): Promise<void> {
+    let currentTime = await this.getBinanceServerTime();
+    if (currentTime) {
+      if (currentTime - this.lastDataUpdateTimeStamp < 300000) {
+        Logger.info("Binance Client: Data is up to date. No need to refresh.");
+        return;
+      }
+
+      let requestSuccessful = await this.getCurrencyDataFromBinance();
+      if (!requestSuccessful) {
+        return;
+      }
+
+      await this.calculateWithdrawalFees();
+      Logger.info("Binance Client: Data has been refreshed.");
+    }
   }
 
   public getCachedWithdrawalFees(): CurrencyDetail[] {
@@ -49,17 +69,30 @@ class BinanceClient {
         if (feeInUSD && fee) {
           feeInUSD = feeInUSD * fee;
         }
-
+        //If the fee is null, then the network is not supported
         if (fee === null) return;
-        networkFeeArray.push({
-          name: item.name,
-          network: item.network,
-          coin: item.coin,
-          fee: fee,
-          feeInUSD: feeInUSD,
-        });
+
+        //Set the native network as the first element
+        if (item.name.includes(currency.name)) {
+          networkFeeArray.unshift({
+            name: item.name,
+            network: item.network,
+            coin: item.coin,
+            fee: fee,
+            feeInUSD: feeInUSD,
+          });
+        } else {
+          networkFeeArray.push({
+            name: item.name,
+            network: item.network,
+            coin: item.coin,
+            fee: fee,
+            feeInUSD: feeInUSD,
+          });
+        }
       });
 
+      //Only add the currency if it has at least one network
       if (networkFeeArray.length > 0)
         this.calculatedWithdrawalFees.push({
           symbol: currency.symbol,
@@ -76,7 +109,7 @@ class BinanceClient {
       return rankA - rankB;
     });
 
-    //Keep only the top 75 currency
+    //Keep only the top 75 market cap currency
     this.calculatedWithdrawalFees = this.calculatedWithdrawalFees.slice(0, 100);
   }
 
@@ -131,7 +164,6 @@ class BinanceClient {
     // Get the server time
     const timestamp = await this.getBinanceServerTime();
     if (!timestamp) {
-      Logger.error("Binance Client: Failed to get server time from Binance API.");
       return false;
     }
 
@@ -170,6 +202,7 @@ class BinanceClient {
 
     const jsonResponse = await response.json();
     this.rawCurrencyDataFromBinance = jsonResponse;
+    this.lastDataUpdateTimeStamp = timestamp;
     return true;
   }
 
@@ -177,12 +210,14 @@ class BinanceClient {
     const REQUEST_URL = "https://api.binance.com/api/v3/time";
     const response = await fetch(REQUEST_URL);
     if (!response.ok) {
+      Logger.error("Binance Client: Failed to get server time from Binance API.");
       return null;
     }
 
     const response_data = await response.json();
 
     if (!response_data.serverTime) {
+      Logger.error("Binance Client: Failed to get server time from the response.");
       return null;
     }
 

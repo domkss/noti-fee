@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import Mailer from "@/lib/service/Mailer";
-import { FeeNotification } from "@/lib/types/TransferTypes";
+import { FeeNotificationConfigSchema } from "@/lib/types/ZodSchemas";
+import { StatusCodes as HTTPStatusCode } from "http-status-codes";
 
-export async function GET(req: NextRequest, res: NextResponse) {
-  let notification: FeeNotification = {
-    email: "notifee_dev.roster808@passmail.net",
-    exchange: "Binance",
-    currency: "Bitcoin (BTC)",
-    network: "Bitcoin (BTC)",
-    targetFee: "0.10 USD",
-  };
+export async function POST(req: NextRequest, res: NextResponse) {
+  try {
+    const content = await req.json();
+    const notificationConfig = FeeNotificationConfigSchema.parse(content);
 
-  Mailer.sendVerificationEmail(notification);
-  return Response.json("Hello World!");
+    Mailer.sendVerificationEmail(notificationConfig);
+
+    return Response.json({ message: "Email sent", status: HTTPStatusCode.OK });
+  } catch (e) {
+    return Response.json({ message: "Invalid request", status: HTTPStatusCode.BAD_REQUEST });
+  }
 }

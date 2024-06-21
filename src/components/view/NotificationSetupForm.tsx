@@ -4,47 +4,93 @@ import { useEffect, useState } from "react";
 import { Description, Field, Fieldset, Input, Label, Legend, Select, Button } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { cn } from "@/lib/utility/UtilityFunctions";
-import { NetworkFeeDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
+import { FeeNotificationConfig, NetworkFeeDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
 import { CurrencyDetail } from "@/lib/types/TransferTypes";
-import { getCurrentFeePlaceholder } from "@/lib/utility/ClientHelperFunctions";
+import { SelectableExchanges, getCurrentFeePlaceholder } from "@/lib/utility/ClientHelperFunctions";
 import { parseUserTargetFeeInputAfterWait } from "@/lib/utility/ClientHelperFunctions";
 import Image from "next/image";
-import { Transition } from "@headlessui/react";
 import Spinner from "../atomic/Spinner";
+import { toast } from "react-toastify";
+import { EmailSchema, FeeNotificationConfigSchema } from "@/lib/types/ZodSchemas";
+import { StatusCodes as HTTPStatusCodes } from "http-status-codes";
+import { set } from "zod";
 
 export default function NotificationSetupForm() {
-  const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<CurrencyDetail[]>([]);
+  const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<Map<string, CurrencyDetail[]>>(new Map());
 
   const [userEmail, setUserEmail] = useState("");
+  const [selectedExchange, setSelectedExchange] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkFeeDetail | null>(null);
   const [inputCorrectionInProgress, setInputCorrectionInProgress] = useState(false);
-
   const [targetFee, setTargetFee] = useState<{ value: string; compatible: boolean | null }>({
     value: "",
     compatible: null,
   });
 
   let currentFee = getCurrentFeePlaceholder(selectedNetwork);
+  let formData = {
+    email: userEmail,
+    exchange: selectedExchange,
+    currency: selectedCurrency?.symbol,
+    network: selectedNetwork?.name,
+    targetFee: targetFee.value,
+  };
 
   const getBinanceData = async () => {
     let response = await fetch("/api/binance");
     let data: ResponseCurrentFees = await response.json();
 
     if (data.currentFees) {
-      setSupportedCurrenciesData(data.currentFees);
+      let newMap = new Map(supportedCurrenciesData);
+      newMap.set(SelectableExchanges.Binance_Withdrawal.id, data.currentFees);
+      setSupportedCurrenciesData(newMap);
     }
   };
 
   //Get Data on page load
   useEffect(() => {
     getBinanceData();
+    setSelectedExchange(SelectableExchanges.Binance_Withdrawal.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //Reset network when currency changes
-  useEffect(() => {
+  const resetUI = () => {
+    setUserEmail("");
+    setSelectedCurrency(null);
     setSelectedNetwork(null);
-  }, [selectedCurrency]);
+    setTargetFee({ value: "", compatible: null });
+  };
+
+  const sendVerificationEmail = async () => {
+    if (targetFee.compatible === null && !inputCorrectionInProgress) {
+      setTargetFee({ value: "", compatible: false });
+      return;
+    } else if (EmailSchema.safeParse(userEmail).success === false) {
+      toast.error("Invalid email address!");
+      return;
+    } else if (targetFee.compatible && !inputCorrectionInProgress) {
+      let requestBody: FeeNotificationConfig;
+
+      if (FeeNotificationConfigSchema.safeParse(formData).success) {
+        requestBody = FeeNotificationConfigSchema.parse(formData);
+
+        let response = await fetch("/api/notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        });
+        if (response.status === HTTPStatusCodes.OK) {
+          toast.success("Verification email sent. Please check your inbox.");
+          resetUI();
+        }
+      } else {
+        toast.error("Invalid settings! Please check your input and try again.");
+      }
+    }
+  };
 
   return (
     <Fieldset className="min-w-[35%] space-y-6 border-r bg-slate-50/60 p-10 shadow-sm max-md:min-w-full max-sm:pt-2 md:px-16">
@@ -58,9 +104,15 @@ export default function NotificationSetupForm() {
       <Field>
         <Label className="text-sm/6 font-medium text-black">Your Email Address</Label>
         <Input
+          value={userEmail}
+          onChange={(e) => setUserEmail(e.target.value)}
           className={cn(
             "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
+            {
+              "border-2 border-red-600":
+                EmailSchema.safeParse(userEmail).success === false && targetFee.compatible === true,
+            },
           )}
         />
       </Field>
@@ -76,14 +128,15 @@ export default function NotificationSetupForm() {
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
               "shadow-sm *:text-black disabled:cursor-not-allowed disabled:bg-gray-200",
             )}
+            value={selectedExchange}
+            onChange={(e) => setSelectedExchange(e.target.value)}
             disabled
           >
-            <option value="binance">Binance (Withdrawal)</option>
-            <option value="okx">OKX (Withdrawal)</option>
-            <option value="bybit">Bybit (Withdrawal)</option>
-            <option value="kraken">Kraken (Withdrawal)</option>
-            <option value="coinbase">Coinbase (Withdrawal)</option>
-            <option value="htx">HTX (Withdrawal)</option>
+            {Object.entries(SelectableExchanges).map(([key, value]) => (
+              <option key={key} value={value.id}>
+                {value.name}
+              </option>
+            ))}
           </Select>
           <ChevronDownIcon
             className="group pointer-events-none absolute right-2.5 top-2.5 size-4 fill-black/60"
@@ -95,9 +148,13 @@ export default function NotificationSetupForm() {
         <Label className="text-sm/6 font-medium text-black">Select Currency</Label>
         <CryptoSelector
           className="mt-1"
-          items={supportedCurrenciesData}
+          items={supportedCurrenciesData.get(selectedExchange) ?? []}
           selected={selectedCurrency}
-          onChange={(currency) => setSelectedCurrency(currency as CurrencyDetail)}
+          onChange={(currency) => {
+            setSelectedCurrency(currency as CurrencyDetail);
+            setSelectedNetwork((currency as CurrencyDetail)?.networkFees[0] ?? null);
+          }}
+          disabled={!selectedExchange}
         />
       </Field>
       <Field>
@@ -107,6 +164,7 @@ export default function NotificationSetupForm() {
           items={selectedCurrency?.networkFees ?? []}
           selected={selectedNetwork}
           onChange={(network) => setSelectedNetwork(network as NetworkFeeDetail)}
+          disabled={!selectedCurrency}
         />
       </Field>
       <Field>
@@ -122,11 +180,13 @@ export default function NotificationSetupForm() {
               setInputCorrectionInProgress(false);
             });
           }}
+          disabled={!selectedNetwork}
           placeholder={currentFee}
           className={cn(
             "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
             { "border-2 border-red-600": targetFee.compatible === false },
+            { "cursor-not-allowed": !selectedNetwork },
           )}
         />
       </Field>
@@ -159,20 +219,17 @@ export default function NotificationSetupForm() {
             "text-md mt-3 rounded bg-emerald-500 px-4 py-2 text-white data-[active]:bg-emerald-600 data-[hover]:bg-emerald-600",
             {
               "bounce-and-shake cursor-not-allowed bg-red-500 data-[active]:bg-red-500 data-[hover]:bg-red-500":
-                targetFee.compatible !== true && !inputCorrectionInProgress,
+                targetFee.compatible !== true &&
+                !inputCorrectionInProgress &&
+                FeeNotificationConfigSchema.safeParse(formData).success === false &&
+                targetFee.compatible !== null,
             },
             {
               "bounce-and-shake cursor-not-allowed bg-slate-400 data-[active]:bg-slate-500 data-[hover]:bg-slate-500":
                 inputCorrectionInProgress,
             },
           )}
-          onClick={() => {
-            if (targetFee.compatible && !inputCorrectionInProgress) {
-              //Post data to server
-            } else if (targetFee.compatible === null && !inputCorrectionInProgress) {
-              setTargetFee({ value: "", compatible: false });
-            }
-          }}
+          onClick={() => sendVerificationEmail()}
         >
           Set Up Notification
         </Button>

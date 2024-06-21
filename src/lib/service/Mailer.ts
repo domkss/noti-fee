@@ -2,10 +2,10 @@ import fs from "fs/promises";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import Logger from "../utility/Logger";
-import { FeeNotification } from "../types/TransferTypes";
+import { FeeNotificationConfig } from "../types/TransferTypes";
 
 class Mailer {
-  static async sendVerificationEmail(notification: FeeNotification) {
+  static async sendVerificationEmail(notification: FeeNotificationConfig) {
     const host = process.env.NODEMAILER_ENDPOINT;
     const port = process.env.NODEMAILER_PORT;
     const user = process.env.NODEMAILER_USER;
@@ -13,7 +13,7 @@ class Mailer {
 
     if (!host || !port || !user || !password) {
       Logger.error("NodeMailer Env configuration is incorrect");
-      return;
+      throw new Error("Configuration incorrect");
     }
 
     var transport = nodemailer.createTransport({
@@ -65,7 +65,7 @@ class Mailer {
   }
 }
 
-const generateToken = (notification: FeeNotification) => {
+const generateToken = (notification: FeeNotificationConfig) => {
   if (process.env.JWT_SECRET) return jwt.sign(notification, process.env.JWT_SECRET, { expiresIn: "1h" });
   throw new Error("JWT_SECRET is not defined in the environment variables.");
 };
