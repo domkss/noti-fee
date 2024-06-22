@@ -39,18 +39,18 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
           <div className="flex flex-col md:flex-row">
             <div className="flex flex-1 flex-col items-center p-2 text-center md:flex-row">
               <div className="mb-2 font-bold">Currency:</div>
-              <div className="mx-2 mb-2 flex flex-row items-center">
-                <div>{props.data.currency}</div>
-                <div className="mx-2 rounded-full bg-emerald-100 shadow-md">
+              <div className="mb-2 flex flex-row items-center">
+                <div className="ml-2">{props.data.currency}</div>
+                <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
                   <TokenIcon symbol={props.data.currency} size={30} variant="branded" />
                 </div>
               </div>
             </div>
             <div className="flex flex-1 flex-col items-center p-2 text-center md:flex-row">
               <div className="mb-2 font-bold">Network:</div>
-              <div className="mx-2 mb-2 flex flex-row items-center">
-                <div>{props.data.network}</div>
-                <div className="mx-2 rounded-full bg-emerald-100 shadow-md">
+              <div className="mb-2 flex flex-row items-center">
+                <div className="ml-2">{props.data.network}</div>
+                <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
                   {getNetworkBaseName(props.data.network) ? (
                     <NetworkIcon network={getNetworkBaseName(props.data.network)} size={30} variant="branded" />
                   ) : null}

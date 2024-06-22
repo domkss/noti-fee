@@ -18,7 +18,7 @@ export default function FAQView() {
           A notification service that sends you an email when the transaction fee of the cryptocurrency you are
           interested in reaches a certain threshold.
           <br />
-          This can help you save money on exchange withdrawal fees.
+          This can help you save money on transactions and exchange withdrawal fees.
         </DisclosurePanel>
       </Disclosure>
       <Disclosure as="div" className="p-6">
