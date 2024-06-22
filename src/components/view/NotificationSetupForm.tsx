@@ -13,7 +13,6 @@ import Spinner from "../atomic/Spinner";
 import { toast } from "react-toastify";
 import { EmailSchema, FeeNotificationConfigSchema } from "@/lib/types/ZodSchemas";
 import { StatusCodes as HTTPStatusCodes } from "http-status-codes";
-import { set } from "zod";
 
 export default function NotificationSetupForm() {
   const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<Map<string, CurrencyDetail[]>>(new Map());
@@ -85,6 +84,10 @@ export default function NotificationSetupForm() {
         if (response.status === HTTPStatusCodes.OK) {
           toast.success("Verification email sent. Please check your inbox.");
           resetUI();
+        } else if (response.status === HTTPStatusCodes.TOO_MANY_REQUESTS) {
+          toast.error("Too many requests. Please try again later.");
+        } else {
+          toast.error("Internal server error. Please try again later.");
         }
       } else {
         toast.error("Invalid settings! Please check your input and try again.");

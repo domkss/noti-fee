@@ -6,29 +6,40 @@ import { FeeNotificationConfig } from "../types/TransferTypes";
 
 class Mailer {
   static async sendVerificationEmail(notification: FeeNotificationConfig) {
-    const host = process.env.NODEMAILER_ENDPOINT;
-    const port = process.env.NODEMAILER_PORT;
-    const user = process.env.NODEMAILER_USER;
-    const password = process.env.NODEMAILER_PASSWD;
+    const mail_server_host = process.env.NODEMAILER_ENDPOINT;
+    const mail_server_port = process.env.NODEMAILER_PORT;
+    const mail_server_user = process.env.NODEMAILER_USER;
+    const mail_server_password = process.env.NODEMAILER_PASSWD;
+    const server_domain = process.env.SERVER_DOMAIN;
+    const from_email = process.env.FROM_EMAIL;
+    const from_email_name = process.env.FROM_EMAIL_NAME;
 
-    if (!host || !port || !user || !password) {
+    if (
+      !mail_server_host ||
+      !mail_server_port ||
+      !mail_server_user ||
+      !mail_server_password ||
+      !server_domain ||
+      !from_email ||
+      !from_email_name
+    ) {
       Logger.error("NodeMailer Env configuration is incorrect");
       throw new Error("Configuration incorrect");
     }
 
     var transport = nodemailer.createTransport({
       // @ts-ignore
-      host: host,
-      port: port,
-      secure: port === "465",
+      host: mail_server_host,
+      port: mail_server_port,
+      secure: mail_server_port === "465",
       auth: {
-        user: user,
-        pass: password,
+        user: mail_server_user,
+        pass: mail_server_password,
       },
     });
 
     const token = generateToken(notification);
-    const verificationLink = `${process.env.SERVER_DOMAIN || "site-name"}/verify?token=${token}`;
+    const verificationLink = `${server_domain}/verify?token=${token}`;
 
     const emailTemplatePath = "resources/email_templates/enable_notification_email.html";
     let data = await fs.readFile(emailTemplatePath, "utf-8").catch(console.error);
@@ -46,8 +57,8 @@ class Mailer {
 
       const mailOptions = {
         from: {
-          address: "noreply@sli.ink",
-          name: "ShortLi",
+          address: from_email,
+          name: from_email_name,
         },
         to: notification.email,
         subject: "Enable NotiFee Notification",
@@ -66,7 +77,10 @@ class Mailer {
 }
 
 const generateToken = (notification: FeeNotificationConfig) => {
-  if (process.env.JWT_SECRET) return jwt.sign(notification, process.env.JWT_SECRET, { expiresIn: "1h" });
+  if (process.env.JWT_SECRET)
+    return jwt.sign(notification, process.env.JWT_SECRET, {
+      expiresIn: process.env.NODE_ENV === "development" ? "24h" : "1h",
+    });
   throw new Error("JWT_SECRET is not defined in the environment variables.");
 };
 

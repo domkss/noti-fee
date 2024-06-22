@@ -158,3 +158,12 @@ export const SelectableExchanges = {
   Coinbase_Withdrawal: { id: "coinbase_withdrawal", name: "Coinbase (Withdrawal)" },
   Htx_Withdrawal: { id: "htx_withdrawal", name: "HTX (Withdrawal)" },
 } as const;
+
+export function getExchangeNameById(id: string): string | undefined {
+  for (const key in SelectableExchanges) {
+    if ((SelectableExchanges as { [key: string]: { id: string; name: string } })[key].id === id) {
+      return (SelectableExchanges as { [key: string]: { id: string; name: string } })[key].name;
+    }
+  }
+  return undefined; // Return undefined if no match is found
+}

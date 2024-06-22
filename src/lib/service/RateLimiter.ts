@@ -61,28 +61,31 @@ class RateLimiter {
 
     return false;
   }
+
+  public static IPRateLimitedEndpoint(IPRateLimiter: RateLimiter, handler: NextApiHandler): NextApiHandler {
+    return async (req: NextRequest) => {
+      try {
+        const ip = (req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "")
+          .split(",")
+          .shift()
+          ?.trim();
+        if (!ip || ip?.length === 0) throw new Error("IP address not found");
+
+        const isRateLimited = IPRateLimiter.isRateLimited(ip);
+
+        if (isRateLimited)
+          return NextResponse.json(
+            { error: "You have reached the rate limit. Please try again later." },
+            { status: HTTPStatusCode.TOO_MANY_REQUESTS },
+          );
+
+        const response = await handler(req);
+        return response;
+      } catch (error) {
+        return NextResponse.json({ error: "Internal Server Error" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
+      }
+    };
+  }
 }
 
-function IPRateLimitedEndpoint(handler: NextApiHandler, IPRateLimiter: RateLimiter): NextApiHandler {
-  return async (req: NextRequest) => {
-    try {
-      const ip = (req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "").split(",").shift()?.trim();
-      if (!ip || ip?.length === 0) throw new Error("IP address not found");
-
-      const isRateLimited = IPRateLimiter.isRateLimited(ip);
-
-      if (isRateLimited)
-        return NextResponse.json(
-          { error: "You have reached the rate limit. Please try again later." },
-          { status: HTTPStatusCode.TOO_MANY_REQUESTS },
-        );
-
-      const response = await handler(req);
-      return response;
-    } catch (error) {
-      return NextResponse.json({ error: "Internal Server Error" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
-    }
-  };
-}
-
-export { RateLimiter, RateLimiterType, IPRateLimitedEndpoint };
+export { RateLimiter, RateLimiterType };

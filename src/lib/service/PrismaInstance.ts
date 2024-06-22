@@ -5,11 +5,12 @@ class PrismaInstance {
 
   private constructor() {}
 
-  static getInstance() {
-    if (!PrismaInstance.instance) {
-      PrismaInstance.instance = new PrismaClient();
+  static async getInstance(): Promise<PrismaClient> {
+    if (!this.instance) {
+      this.instance = new PrismaClient();
+      await this.instance.$connect();
     }
-    return PrismaInstance.instance;
+    return this.instance;
   }
 }
 

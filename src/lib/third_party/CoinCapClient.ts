@@ -6,6 +6,8 @@ class CoinCapClient {
   private rawCurrencyDataFromCoinCap: { [key: string]: any }[] = [];
   private rankBySymbol: Map<string, number> = new Map<string, number>();
   private usdPriceBySymbol: Map<string, number> = new Map<string, number>();
+  private lastDataUpdateTimeStamp: number = 0;
+  private readonly UPDATE_INTERVAL_MS = 300000;
 
   private constructor() {}
 
@@ -25,7 +27,24 @@ class CoinCapClient {
     return CoinCapClient.instance;
   }
 
+  public async refreshData(): Promise<void> {
+    let currentTime = Date.now();
+    if (currentTime - this.lastDataUpdateTimeStamp < this.UPDATE_INTERVAL_MS) {
+      Logger.info("CoinCap Client: Data is up to date. No need to refresh.");
+      return;
+    }
+
+    let requestSuccessful = await this.getDataFromCoinCap();
+    if (!requestSuccessful) {
+      return;
+    }
+    this.processRawData();
+  }
+
   private async getDataFromCoinCap(): Promise<boolean> {
+    //Update Last Data Update Timestamp
+    this.lastDataUpdateTimeStamp = Date.now();
+
     if (process.env.NODE_ENV === "development") {
       this.rawCurrencyDataFromCoinCap = COINCAP_DUMMY_DATA.data;
       return true;
@@ -36,11 +55,17 @@ class CoinCapClient {
 
     const REQUEST_URL = "https://api.coincap.io/v2/assets?limit=200";
     let response = await fetch(REQUEST_URL);
-    if (response.ok) {
-      let jsonBody = await response.json();
-      this.rawCurrencyDataFromCoinCap = jsonBody.data;
-      return true;
+    if (response.ok && response.status === 200) {
+      try {
+        let jsonBody = await response.json();
+        this.rawCurrencyDataFromCoinCap = jsonBody.data;
+        return true;
+      } catch (e) {
+        Logger.error("CoinCap Client: Failed to parse JSON response from CoinCap API");
+        return false;
+      }
     }
+    Logger.error("CoinCap Client: Failed to fetch currency metadata from CoinCap API.");
     return false;
   }
 

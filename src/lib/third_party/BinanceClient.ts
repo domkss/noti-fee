@@ -13,6 +13,7 @@ class BinanceClient {
   private calculatedWithdrawalFees: CurrencyDetail[] = [];
 
   private lastDataUpdateTimeStamp: number = 0;
+  private readonly UPDATE_INTERVAL_MS = 300000;
 
   private constructor() {}
 
@@ -32,21 +33,20 @@ class BinanceClient {
   }
 
   public async refreshData(): Promise<void> {
-    let currentTime = await this.getBinanceServerTime();
-    if (currentTime) {
-      if (currentTime - this.lastDataUpdateTimeStamp < 300000) {
-        Logger.info("Binance Client: Data is up to date. No need to refresh.");
-        return;
-      }
+    let currentTime = Date.now();
 
-      let requestSuccessful = await this.getCurrencyDataFromBinance();
-      if (!requestSuccessful) {
-        return;
-      }
-
-      await this.calculateWithdrawalFees();
-      Logger.info("Binance Client: Data has been refreshed.");
+    if (currentTime - this.lastDataUpdateTimeStamp < this.UPDATE_INTERVAL_MS) {
+      Logger.info("Binance Client: Data is up to date. No need to refresh.");
+      return;
     }
+
+    let requestSuccessful = await this.getCurrencyDataFromBinance();
+    if (!requestSuccessful) {
+      return;
+    }
+
+    await this.calculateWithdrawalFees();
+    Logger.info("Binance Client: Data has been refreshed.");
   }
 
   public getCachedWithdrawalFees(): CurrencyDetail[] {
@@ -153,6 +153,9 @@ class BinanceClient {
   }
 
   private async getCurrencyDataFromBinance(): Promise<boolean> {
+    //Update Last Data Update Timestamp
+    this.lastDataUpdateTimeStamp = Date.now();
+
     if (process.env.NODE_ENV === "development") {
       this.rawCurrencyDataFromBinance = BINANCE_DUMMY_COIN_DATA;
       return true;
@@ -200,10 +203,14 @@ class BinanceClient {
       return false;
     }
 
-    const jsonResponse = await response.json();
-    this.rawCurrencyDataFromBinance = jsonResponse;
-    this.lastDataUpdateTimeStamp = timestamp;
-    return true;
+    try {
+      const jsonResponse = await response.json();
+      this.rawCurrencyDataFromBinance = jsonResponse;
+      return true;
+    } catch (e) {
+      Logger.error("Binance Client: Failed to parse currency data from Binance API.");
+      return false;
+    }
   }
 
   private async getBinanceServerTime(): Promise<number | null> {

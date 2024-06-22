@@ -1,5 +1,8 @@
+import SetupVerificationForm from "@/components/view/SetupVerificationForm";
 import { getNotificationDataFromJWT } from "@/lib/service/NotificationHandler";
+import PrismaInstance from "@/lib/service/PrismaInstance";
 import { getErrorMessage } from "@/lib/utility/UtilityFunctions";
+import { redirect } from "next/navigation";
 
 async function VerifyPage({
   params,
@@ -13,12 +16,15 @@ async function VerifyPage({
   if (token && typeof token === "string") {
     try {
       let decoded = await getNotificationDataFromJWT(token);
-      return <div>{decoded.email}</div>;
+      let prisma = await PrismaInstance.getInstance();
+      let user = await prisma.user.findUnique({ where: { email: decoded.email } });
+
+      return <SetupVerificationForm data={decoded} availableCredit={user?.credit ?? 0} />;
     } catch (e) {
       return <div>{getErrorMessage(e)}</div>;
     }
   } else {
-    return <div>No token provided</div>;
+    redirect("/");
   }
 }
 
