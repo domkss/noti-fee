@@ -74,6 +74,25 @@ export default function FAQView() {
           We are working on adding support for setting up notifications for native blockchain fee changes.
         </DisclosurePanel>
       </Disclosure>
+      <Disclosure as="div" className="p-6">
+        <DisclosureButton className="group flex w-full items-center justify-between">
+          <span className="text-md font-medium text-black group-data-[hover]:text-black/80">
+            Terms of Use and Privacy Policy
+          </span>
+          <ChevronDownIcon className="size-5 fill-black group-data-[open]:rotate-180 group-data-[hover]:fill-black" />
+        </DisclosureButton>
+        <DisclosurePanel className="text-md mt-2 text-gray-800">
+          The Terms of Use can be found{" "}
+          <a href="/legal/termsofuse" className="text-blue-500">
+            here
+          </a>{" "}
+          and the Privacy Policy can be found{" "}
+          <a href="/legal/privacy-policy" className="text-blue-500">
+            here
+          </a>
+          .
+        </DisclosurePanel>
+      </Disclosure>
     </div>
   );
 }
