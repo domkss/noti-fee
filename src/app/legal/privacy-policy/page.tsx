@@ -33,6 +33,18 @@ const PrivacyPolicy = () => {
               We may also automatically collect certain information about your device and usage patterns when you access
               or interact with our website.
             </p>
+            <h2 className="my-2 text-xl font-semibold">Analytics by Stripe</h2>
+            <p>
+              We use Stripe for payment, analytics, and other business services. Stripe collects identifying information
+              about the devices that connect to its services. <br />
+              Stripe uses this information to operate and improve the services it provides to us, including for fraud
+              detection. <br />
+              You can learn more about Stripe and read its privacy policy at{" "}
+              <a className="text-blue-500 hover:underline" href="https://stripe.com/privacy">
+                https://stripe.com/privacy
+              </a>
+              .
+            </p>
           </section>
 
           <section className="mb-6">
@@ -58,6 +70,7 @@ const PrivacyPolicy = () => {
               <li>To comply with legal obligations.</li>
               <li>To protect and defend the rights or property of NotiFee.</li>
               <li>To prevent or investigate possible wrongdoing in connection with the service.</li>
+              <li>To prevent fraudulent transactions.</li>
             </ul>
           </section>
 
