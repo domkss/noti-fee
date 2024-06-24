@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { StatusCodes as HTTPStatusCode } from "http-status-codes";
+import Logger from "@/lib/utility/Logger";
 
 type NextApiHandler = (req: NextRequest) => Promise<Response>;
 
 enum RateLimiterType {
-  IP_GET,
-  IP_POST,
-  EMAIL,
+  EMAIL_SEND_FROM_IP,
+  VERIFICATION_EMAIL,
 }
 
 class RateLimiter {
@@ -73,11 +73,14 @@ class RateLimiter {
 
         const isRateLimited = IPRateLimiter.isRateLimited(ip);
 
-        if (isRateLimited)
+        if (isRateLimited) {
+          Logger.warn(`Rate limit reached for IP: ${ip}`);
+
           return NextResponse.json(
             { error: "You have reached the rate limit. Please try again later." },
             { status: HTTPStatusCode.TOO_MANY_REQUESTS },
           );
+        }
 
         const response = await handler(req);
         return response;

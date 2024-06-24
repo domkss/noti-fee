@@ -1,7 +1,6 @@
 "use client";
 import FAQView from "@/components/view/FAQView";
 import NotificationSetupForm from "@/components/view/NotificationSetupForm";
-
 function Home() {
   return (
     <main className="flex min-h-screen flex-col md:flex-row ">

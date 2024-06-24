@@ -26,6 +26,7 @@ export default function NotificationSetupForm() {
     value: "",
     compatible: null,
   });
+  const [submitInProgress, setSubmitInProgress] = useState(false);
 
   let currentFee = getCurrentFeePlaceholder(selectedNetwork);
   let formData = {
@@ -69,6 +70,7 @@ export default function NotificationSetupForm() {
       toast.error("Invalid email address!");
       return;
     } else if (targetFee.compatible && !inputCorrectionInProgress) {
+      setSubmitInProgress(true);
       let requestBody: FeeNotificationConfig;
 
       if (FeeNotificationConfigSchema.safeParse(formData).success) {
@@ -89,6 +91,7 @@ export default function NotificationSetupForm() {
         } else {
           toast.error("Internal server error. Please try again later.");
         }
+        setSubmitInProgress(false);
       } else {
         toast.error("Invalid settings! Please check your input and try again.");
       }
@@ -231,8 +234,10 @@ export default function NotificationSetupForm() {
               "bounce-and-shake cursor-not-allowed bg-slate-400 data-[active]:bg-slate-500 data-[hover]:bg-slate-500":
                 inputCorrectionInProgress,
             },
+            { "cursor-progress": submitInProgress },
           )}
           onClick={() => sendVerificationEmail()}
+          disabled={submitInProgress}
         >
           Set Up Notification
         </Button>

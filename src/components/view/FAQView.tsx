@@ -30,11 +30,16 @@ export default function FAQView() {
         </DisclosureButton>
         <DisclosurePanel className="text-md mt-2 text-gray-800">
           With a one-time <span className="font-bold text-red-500 line-through">($15)</span>
-          <span className="font-bold text-green-600"> $9.99 </span>purchase, you can set up 200 notifications. <br />
-          The purchase is linked to your email address and valid until you reach the 200 notification limit.
+          <span className="font-bold text-green-600"> $9.99 </span>purchase, you receive 200 message credits. <br />
+          The purchase is linked to your email address, and the message credits received for the payment serve as an
+          internal balance.
           <br />
-          This small payment helps us cover the costs of running the service and in most cases can be offset by savings
-          on your first exchange withdrawal.
+          Each notification activation costs 1 message credit. <br />
+          If you set up more than 5 notifications within a day, an additional credit will be charged for every
+          verification email sent to you.
+          <br />
+          This small payment helps us cover the costs of running the service and, in most cases, can be offset by
+          savings on your first exchange withdrawal.
         </DisclosurePanel>
       </Disclosure>
       <Disclosure as="div" className="p-6">

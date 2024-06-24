@@ -105,9 +105,28 @@ const TermsOfUse = () => {
               These credits can be used at any time while the Service is available to the public. By accepting these
               Terms of Use and clicking the pay button, you acknowledge these terms.
             </p>
-            <p className="mt-2">
+            <p>
+              The cost of credits is subject to change at any time without notice. The price you pay for credits is the
+              price displayed at the time of purchase.
+            </p>
+            <p>
+              You can purchase credits through the NotiFee website using a credit card. NotiFee uses a third-party
+              payment provider to process payments securely.
+            </p>
+            <h3 className="mt-2">
+              <strong>Notification Activation Costs</strong>
+            </h3>
+            <p>
+              Each notification activation costs 1 message credit. If you set up more than 5 notifications within a day,
+              an additional credit will be charged for every verification email sent to you. Example: If you set up 8
+              notifications within a day, you will be charged 8 credits for the notifications activations and 3 credits
+              for the verification emails above the 5 free verification email, totaling 11 credits.
+            </p>
+            <h3 className="mt-2text-xl font-bold text-red-500">Important: Credits are non-refundable!</h3>
+            <p>
               Credits purchased are non-refundable and cannot be converted back to real money. Once credits are
-              purchased, they are bound to the user account and can only be used through that account.
+              purchased, they are bound to the user account and can only be used through that account. We do not offer
+              refunds for unused credits or any other reason. Please consider this before purchasing any.
             </p>
           </section>
 

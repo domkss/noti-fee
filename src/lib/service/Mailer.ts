@@ -64,6 +64,13 @@ class Mailer {
         subject: "Enable NotiFee Notification",
         html: data,
       };
+      Logger.info(
+        "Verification email sent: " +
+          Object.entries(notification)
+            .map(([key, value]) => `${key}=${value}`)
+            .join(" "),
+      );
+
       console.log("Token: " + placeholders.action_url);
       /*transport.sendMail(mailOptions, (error: any, info: any) => {
         if (error) {

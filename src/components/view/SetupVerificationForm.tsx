@@ -86,7 +86,7 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
           </Field>
         </Fieldset>
         <div className="flex justify-center p-3">
-          <Button className="rounded-md bg-green-600 px-3 py-2 text-white max-sm:w-full">
+          <Button className="rounded-md bg-emerald-500  px-3 py-2 text-white hover:bg-emerald-600 max-sm:w-full">
             Activate Notification (1 credit)
           </Button>
         </div>
