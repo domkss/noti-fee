@@ -13,7 +13,7 @@ const Logger = createLogger({
   format: combine(timestamp(), myFormat),
   transports: [
     new transports.Console(), // Log to the console
-    new transports.File({ filename: "logs/app.log" }), // Log to a file
+    new transports.File({ filename: "logs/application.log" }), // Log to a file
   ],
 });
 

@@ -44,46 +44,48 @@ class Mailer {
     const emailTemplatePath = "resources/email_templates/enable_notification_email.html";
     let data = await fs.readFile(emailTemplatePath, "utf-8").catch(console.error);
 
-    if (data) {
-      const placeholders = {
-        exchange: notification.exchange,
-        currency: notification.currency,
-        network: notification.network,
-        target_fee: notification.targetFee + " " + notification.targetCurrency,
-        action_url: verificationLink,
-      };
-
-      data = replacePlaceholders(data, placeholders);
-
-      const mailOptions = {
-        from: {
-          address: from_email,
-          name: from_email_name,
-        },
-        to: notification.email,
-        subject: "Enable NotiFee Notification",
-        html: data,
-      };
-      Logger.info(
-        "Verification email sent: " +
-          Object.entries(notification)
-            .map(([key, value]) => `${key}=${value}`)
-            .join(" "),
-      );
-
-      console.log("Token: " + placeholders.action_url);
-
-      return true;
-      /*transport.sendMail(mailOptions, (error: any, info: any) => {
-        if (error) {
-          Logger.error("Error sending verification email: " + error);
-          return false;
-        }
-        Logger.info("Verification email sent: Email= " + notification.email + " Info= " + info.response);
-      });
-      */
+    if (!data) {
+      return false;
     }
-    return false;
+
+    const placeholders = {
+      exchange: notification.exchange,
+      currency: notification.currency,
+      network: notification.network,
+      target_fee: notification.targetFee + " " + notification.targetCurrency,
+      action_url: verificationLink,
+    };
+
+    data = replacePlaceholders(data, placeholders);
+
+    const mailOptions = {
+      from: {
+        address: from_email,
+        name: from_email_name,
+      },
+      to: notification.email,
+      subject: "Enable NotiFee Notification",
+      html: data,
+    };
+    Logger.info(
+      "Verification email sent: " +
+        Object.entries(notification)
+          .map(([key, value]) => `${key}=${value}`)
+          .join(" "),
+    );
+
+    console.log("Token: " + placeholders.action_url);
+    /*
+      try {
+        let result = await transport.sendMail(mailOptions);
+        Logger.info("Email sent: " + result.response);
+        return true;
+      } catch (error) {
+        Logger.error("Error sending verification email: " + error);
+        return false;
+      }*/
+
+    return true;
   }
 }
 
