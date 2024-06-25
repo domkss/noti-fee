@@ -8,9 +8,11 @@ export const EmailSchema = z
   );
 
 export const FeeNotificationConfigSchema = z.object({
+  uuid: z.string().uuid().nullish(),
   email: EmailSchema,
   exchange: z.string(),
   currency: z.string(),
   network: z.string(),
-  targetFee: z.string(),
+  targetFee: z.number(),
+  targetCurrency: z.string(),
 });

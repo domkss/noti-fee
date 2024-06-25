@@ -17,4 +17,16 @@ datasource db {
 model User {
   email String  @id @unique
   credit Int @default(0)
+  notifications Notification[]
+}
+
+model Notification {
+  id String        @id @unique
+  userEmail        String
+  user             User @relation(fields: [userEmail], references: [email])
+  exchange         String
+  currency         String
+  network          String
+  targetFee        Decimal
+  targetCurrency   String
 }

@@ -7,14 +7,44 @@ import { getNetworkBaseName } from "@/lib/utility/ClientHelperFunctions";
 import { cn } from "@/lib/utility/UtilityFunctions";
 import { Field, Fieldset, Legend, Button, Label, Description } from "@headlessui/react";
 import Image from "next/image";
-import StripeContainer from "../atomic/stripe/StripeContainer";
+import { toast } from "react-toastify";
+import { StatusCodes as HTTPStatusCodes } from "http-status-codes";
+import { useState } from "react";
 
 interface SetupVerificationFormProps {
   data: FeeNotificationConfig;
   availableCredit: number;
+  token: string;
+  activated: boolean;
 }
 
 export default function SetupVerificationForm(props: SetupVerificationFormProps) {
+  const [availableCredit, setAvailableCredit] = useState(props.availableCredit);
+  const [activated, setActivated] = useState(props.activated);
+
+  async function activateNotification() {
+    if (availableCredit <= 0) {
+      //Todo: Popup a modal to buy credit
+      toast.error("You don't have enough credit to activate notification");
+      return;
+    }
+
+    let response = await fetch("/api/notification", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        token: props.token,
+      },
+    });
+    if (response.ok && response.status === HTTPStatusCodes.OK) {
+      toast.success("Notification activated successfully");
+      setAvailableCredit(availableCredit - 1);
+      setActivated(true);
+    } else {
+      toast.error("Failed to activate notification");
+    }
+  }
+
   return (
     <div className="flex h-screen w-full justify-center">
       <div className="container">
@@ -42,12 +72,12 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
                 <div
                   className={cn(
                     "mx-2",
-                    { "font-semibold text-green-500": props.availableCredit >= 10 },
-                    { "fonst font-semibold text-orange-400": props.availableCredit < 10 },
-                    { "font-bold text-red-600": props.availableCredit <= 0 },
+                    { "font-semibold text-green-500": availableCredit >= 10 },
+                    { "fonst font-semibold text-orange-400": availableCredit < 10 },
+                    { "font-bold text-red-600": availableCredit <= 0 },
                   )}
                 >
-                  {props.availableCredit}
+                  {availableCredit}
                 </div>
               </div>
             </div>
@@ -80,13 +110,22 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
               </div>
               <div className="flex flex-1  flex-row p-1 ">
                 <div className="font-bold">Target Fee:</div>
-                <div className="mx-2">{props.data.targetFee}</div>
+                <div className="mx-2">{props.data.targetFee + " " + props.data.targetCurrency}</div>
               </div>
             </div>
           </Field>
         </Fieldset>
-        <div className="flex justify-center p-3">
-          <Button className="rounded-md bg-emerald-500  px-3 py-2 text-white hover:bg-emerald-600 max-sm:w-full">
+        <div className="flex flex-col items-center justify-center p-3">
+          <div className={cn("my-2", { hidden: !activated })}>
+            Status: <span className="font-bold text-green-500">Active</span>
+          </div>
+          <Button
+            className={cn("rounded-md bg-emerald-500  px-3 py-2 text-white hover:bg-emerald-600 max-sm:w-full", {
+              "cursor-default bg-gray-400 hover:bg-gray-400": activated,
+            })}
+            onClick={activateNotification}
+            disabled={activated}
+          >
             Activate Notification (1 credit)
           </Button>
         </div>

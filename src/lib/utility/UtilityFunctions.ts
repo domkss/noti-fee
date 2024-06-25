@@ -1,5 +1,6 @@
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import crypto from "crypto";
 
 export function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
@@ -28,3 +29,20 @@ export const debounce = (fn: Function, ms = 300) => {
 
   return executedFunction;
 };
+
+export function createUUID8(Object: any) {
+  if (!Object) throw new Error("Object is required to create a UUID v8");
+  const content = JSON.stringify(Object);
+
+  // Create a hash of the JWT to use in the UUID v8
+  const hash = crypto.createHash("sha256").update(content).digest("hex");
+
+  // Generate a custom UUID v8
+  const uuidTemplate = "xxxxxxxx-xxxx-8xxx-yxxx-xxxxxxxxxxxx";
+  let i = 0;
+  return uuidTemplate.replace(/[xy]/g, function (char) {
+    const r = parseInt(hash[i++], 16);
+    const v = char === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}

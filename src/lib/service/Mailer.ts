@@ -5,7 +5,7 @@ import Logger from "../utility/Logger";
 import { FeeNotificationConfig } from "../types/TransferTypes";
 
 class Mailer {
-  static async sendVerificationEmail(notification: FeeNotificationConfig) {
+  static async sendVerificationEmail(notification: FeeNotificationConfig): Promise<boolean> {
     const mail_server_host = process.env.NODEMAILER_ENDPOINT;
     const mail_server_port = process.env.NODEMAILER_PORT;
     const mail_server_user = process.env.NODEMAILER_USER;
@@ -49,7 +49,7 @@ class Mailer {
         exchange: notification.exchange,
         currency: notification.currency,
         network: notification.network,
-        target_fee: notification.targetFee,
+        target_fee: notification.targetFee + " " + notification.targetCurrency,
         action_url: verificationLink,
       };
 
@@ -72,21 +72,25 @@ class Mailer {
       );
 
       console.log("Token: " + placeholders.action_url);
+
+      return true;
       /*transport.sendMail(mailOptions, (error: any, info: any) => {
         if (error) {
-          return logger.error(error);
+          Logger.error("Error sending verification email: " + error);
+          return false;
         }
-        logger.info("Verification email sent: Email= " + notification.email + " Info= " + info.response);
+        Logger.info("Verification email sent: Email= " + notification.email + " Info= " + info.response);
       });
       */
     }
+    return false;
   }
 }
 
 const generateToken = (notification: FeeNotificationConfig) => {
   if (process.env.JWT_SECRET)
     return jwt.sign(notification, process.env.JWT_SECRET, {
-      expiresIn: process.env.NODE_ENV === "development" ? "24h" : "1h",
+      expiresIn: process.env.NODE_ENV === "development" ? "24h" : "2h",
     });
   throw new Error("JWT_SECRET is not defined in the environment variables.");
 };

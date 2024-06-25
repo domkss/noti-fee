@@ -22,8 +22,8 @@ export default function NotificationSetupForm() {
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkFeeDetail | null>(null);
   const [inputCorrectionInProgress, setInputCorrectionInProgress] = useState(false);
-  const [targetFee, setTargetFee] = useState<{ value: string; compatible: boolean | null }>({
-    value: "",
+  const [targetFee, setTargetFee] = useState<{ stringValue: string; compatible: boolean | null }>({
+    stringValue: "",
     compatible: null,
   });
   const [submitInProgress, setSubmitInProgress] = useState(false);
@@ -34,7 +34,8 @@ export default function NotificationSetupForm() {
     exchange: selectedExchange,
     currency: selectedCurrency?.symbol,
     network: selectedNetwork?.name,
-    targetFee: targetFee.value,
+    targetFee: Number.parseFloat(targetFee.stringValue.split(" ")[0]),
+    targetCurrency: targetFee.stringValue.split(" ")[1],
   };
 
   const getBinanceData = async () => {
@@ -59,12 +60,12 @@ export default function NotificationSetupForm() {
     setUserEmail("");
     setSelectedCurrency(null);
     setSelectedNetwork(null);
-    setTargetFee({ value: "", compatible: null });
+    setTargetFee({ stringValue: "", compatible: null });
   };
 
   const sendVerificationEmail = async () => {
     if (targetFee.compatible === null && !inputCorrectionInProgress) {
-      setTargetFee({ value: "", compatible: false });
+      setTargetFee({ stringValue: "", compatible: false });
       return;
     } else if (EmailSchema.safeParse(userEmail).success === false) {
       toast.error("Invalid email address!");
@@ -75,7 +76,6 @@ export default function NotificationSetupForm() {
 
       if (FeeNotificationConfigSchema.safeParse(formData).success) {
         requestBody = FeeNotificationConfigSchema.parse(formData);
-
         let response = await fetch("/api/notification", {
           method: "POST",
           headers: {
@@ -83,6 +83,7 @@ export default function NotificationSetupForm() {
           },
           body: JSON.stringify(requestBody),
         });
+
         if (response.status === HTTPStatusCodes.OK) {
           toast.success("Verification email sent. Please check your inbox.");
           resetUI();
@@ -177,12 +178,12 @@ export default function NotificationSetupForm() {
         <Label className="text-sm/6 font-medium text-black">Target Fee</Label>
         <Input
           type="text"
-          value={targetFee.value}
+          value={targetFee.stringValue}
           onChange={(e) => {
-            setTargetFee({ value: e.target.value, compatible: null });
+            setTargetFee({ stringValue: e.target.value, compatible: null });
             setInputCorrectionInProgress(true);
             parseUserTargetFeeInputAfterWait(e.target.value, currentFee).then((result: any) => {
-              setTargetFee({ value: result.value, compatible: result.compatible });
+              setTargetFee({ stringValue: result.value, compatible: result.compatible });
               setInputCorrectionInProgress(false);
             });
           }}
@@ -208,7 +209,7 @@ export default function NotificationSetupForm() {
           )}
         >
           {targetFee.compatible
-            ? targetFee.value
+            ? targetFee.stringValue
             : targetFee.compatible === false
               ? "Invalid target value"
               : "xxx USD/BTC/ETH/..."}

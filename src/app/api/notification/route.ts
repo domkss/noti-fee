@@ -4,35 +4,41 @@ import { FeeNotificationConfigSchema } from "@/lib/types/ZodSchemas";
 import { StatusCodes as HTTPStatusCode } from "http-status-codes";
 import { RateLimiter, RateLimiterType } from "@/lib/service/RateLimiter";
 import PrismaInstance from "@/lib/service/PrismaInstance";
+import { getNotificationDataFromJWT } from "@/lib/service/NotificationHandler";
+import { createUUID8 } from "@/lib/utility/UtilityFunctions";
 
 export const POST = async (req: NextRequest) => {
   const token = req.headers.get("token");
 
   if (token) {
-    return Response.json({ message: "Invalid request" }, { status: HTTPStatusCode.NOT_IMPLEMENTED });
+    return ActivateNotification(req, token);
   } else {
     return SendVerificationEmail(req);
   }
 };
 
 // Rate limiter for verification email request
-const VerificationEmailRequestIPRateLimiter = RateLimiter.getInstance(RateLimiterType.EMAIL_SEND_FROM_IP, {
+const VerificationEmailRequestRateLimiterByIP = RateLimiter.getInstance(RateLimiterType.EMAIL_SEND_FROM_IP, {
   windowSizeSec: 86400,
   maxRequests: 50,
 });
-
-const EmailAddressLimiter = RateLimiter.getInstance(RateLimiterType.VERIFICATION_EMAIL, {
-  windowSizeSec: 86400,
-  maxRequests: 5,
-});
-
+//Rate limiter for verification email by email address
+const VerificationEmailRequestRateLimiterByEmail = RateLimiter.getInstance(
+  RateLimiterType.VERIFICATION_EMAIL_BY_RECIPIENT,
+  {
+    windowSizeSec: 86400,
+    maxRequests: 5,
+  },
+);
 //Send verification email
 const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
-  VerificationEmailRequestIPRateLimiter,
+  VerificationEmailRequestRateLimiterByIP,
   async (req: NextRequest) => {
     try {
       const content = await req.json();
       const notificationConfig = FeeNotificationConfigSchema.parse(content);
+      //Generate a new UUID for each request
+      notificationConfig.uuid = createUUID8(notificationConfig);
 
       //#region Email Rate Limiter
       let prisma = await PrismaInstance.getInstance();
@@ -43,7 +49,7 @@ const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
         },
       });
 
-      let isRateLimited = EmailAddressLimiter.isRateLimited(notificationConfig.email);
+      let isRateLimited = VerificationEmailRequestRateLimiterByEmail.isRateLimited(notificationConfig.email);
 
       if (isRateLimited) {
         if (user && user.credit > 1) {
@@ -63,11 +69,60 @@ const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
       }
       //#endregion
 
-      Mailer.sendVerificationEmail(notificationConfig);
-
-      return Response.json({ message: "Email sent", status: HTTPStatusCode.OK });
+      let success = await Mailer.sendVerificationEmail(notificationConfig);
+      if (success) {
+        return Response.json({ message: "Email sent" }, { status: HTTPStatusCode.OK });
+      } else {
+        return Response.json({ message: "Failed to send email" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
+      }
     } catch (e) {
-      return Response.json({ message: "Invalid request", status: HTTPStatusCode.BAD_REQUEST });
+      console.error(e);
+      return Response.json({ message: "Invalid request" }, { status: HTTPStatusCode.BAD_REQUEST });
     }
   },
 );
+
+//Activate notification
+const ActivateNotification: (req: NextRequest, token: string) => Promise<Response> = async (
+  req: NextRequest,
+  token: string,
+) => {
+  try {
+    let decoded = await getNotificationDataFromJWT(token);
+    let prisma = await PrismaInstance.getInstance();
+    let user = await prisma.user.findUnique({ where: { email: decoded.email } });
+    if (user && user.credit > 0 && typeof decoded.uuid === "string") {
+      await prisma.$transaction(async (prisma) => {
+        await prisma.notification.create({
+          data: {
+            id: decoded.uuid as string,
+            userEmail: decoded.email,
+            exchange: decoded.exchange,
+            currency: decoded.currency,
+            network: decoded.network,
+            targetFee: decoded.targetFee,
+            targetCurrency: decoded.targetCurrency,
+          },
+        });
+
+        await prisma.user.update({
+          where: {
+            email: decoded.email,
+          },
+          data: {
+            credit: user.credit - 1,
+          },
+        });
+      });
+
+      return Response.json({ message: "Notification activated successfully" }, { status: HTTPStatusCode.OK });
+    } else {
+      return Response.json(
+        { message: "You don't have enough credit to activate notification" },
+        { status: HTTPStatusCode.PAYMENT_REQUIRED },
+      );
+    }
+  } catch (e) {
+    return Response.json({ message: "Token invalid or expired" }, { status: HTTPStatusCode.UNAUTHORIZED });
+  }
+};

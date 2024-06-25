@@ -6,7 +6,7 @@ type NextApiHandler = (req: NextRequest) => Promise<Response>;
 
 enum RateLimiterType {
   EMAIL_SEND_FROM_IP,
-  VERIFICATION_EMAIL,
+  VERIFICATION_EMAIL_BY_RECIPIENT,
 }
 
 class RateLimiter {
