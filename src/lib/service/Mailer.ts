@@ -42,7 +42,12 @@ class Mailer {
     const verificationLink = `${server_domain}/verify?token=${token}`;
 
     const emailTemplatePath = "resources/email_templates/enable_notification_email.html";
-    let data = await fs.readFile(emailTemplatePath, "utf-8").catch(console.error);
+    let data = await fs.readFile(emailTemplatePath, "utf-8").catch((e) => {
+      Logger.error(e);
+      return null;
+    });
+    const logoPath = "resources/email_templates/logo.png";
+    let logoFile = await fs.readFile(logoPath).catch(Logger.error);
 
     if (!data) {
       return false;
@@ -66,6 +71,13 @@ class Mailer {
       to: notification.email,
       subject: "Enable NotiFee Notification",
       html: data,
+      attachments: [
+        {
+          filename: "logo.png",
+          content: logoFile,
+          cid: "notifee-logo",
+        },
+      ],
     };
     Logger.info(
       "Verification email sent: " +
@@ -75,15 +87,15 @@ class Mailer {
     );
 
     console.log("Token: " + placeholders.action_url);
-    /*
-      try {
-        let result = await transport.sendMail(mailOptions);
-        Logger.info("Email sent: " + result.response);
-        return true;
-      } catch (error) {
-        Logger.error("Error sending verification email: " + error);
-        return false;
-      }*/
+
+    try {
+      let result = await transport.sendMail(mailOptions);
+      Logger.info("Email sent: " + result.response);
+      return true;
+    } catch (error) {
+      Logger.error("Error sending verification email: " + error);
+      return false;
+    }
 
     return true;
   }
