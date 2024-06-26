@@ -1,63 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
 import { StatusCodes as HTTPStatusCode } from "http-status-codes";
 import Logger from "@/lib/utility/Logger";
+import RedisInstance from "./RedisInstance";
 
 type NextApiHandler = (req: NextRequest) => Promise<Response>;
 
-enum RateLimiterType {
-  EMAIL_SEND_FROM_IP,
-  VERIFICATION_EMAIL_BY_RECIPIENT,
-}
+type NameSpaces = "limit_send_by_ip" | "limit_send_by_email";
 
 class RateLimiter {
-  windowSizeMs: number;
-  maxRequests: number;
-  idToWindows: Map<string, Array<number>>;
-  static instances: Map<RateLimiterType, RateLimiter> = new Map<RateLimiterType, RateLimiter>();
+  readonly namspace: NameSpaces;
+  readonly windowSizeMs: number;
+  readonly maxRequests: number;
 
-  public static getInstance(
-    type: RateLimiterType,
-    config?: { windowSizeSec: number; maxRequests: number },
-  ): RateLimiter {
-    let instance = this.instances.get(type);
-    if (!instance && config) {
-      instance = new RateLimiter(config);
-      this.instances.set(type, instance);
-      return instance;
-    } else if (!instance) {
-      config = { windowSizeSec: 600, maxRequests: 50 };
-      instance = new RateLimiter(config);
-      this.instances.set(type, instance);
-      return instance;
-    }
-
-    return instance;
+  public static getInstance(config: { namspace: NameSpaces; windowSizeSec: number; maxRequests: number }): RateLimiter {
+    return new RateLimiter(config);
   }
 
-  private constructor(config: { windowSizeSec: number; maxRequests: number }) {
+  private constructor(config: { namspace: NameSpaces; windowSizeSec: number; maxRequests: number }) {
+    this.namspace = config.namspace;
     this.windowSizeMs = config.windowSizeSec * 1000;
     this.maxRequests = config.maxRequests;
-    this.idToWindows = new Map<string, Array<number>>();
   }
-  public isRateLimited(id: string) {
-    const now = Date.now();
 
-    // get queue or initialize it
-    let queue = this.idToWindows.get(id);
-    if (!queue) {
-      queue = [];
-      this.idToWindows.set(id, queue);
+  public async isRateLimited(id: string) {
+    const now = Date.now();
+    const key = `${this.namspace}:${id}`;
+    let redis = await RedisInstance.getClient();
+    if (!(redis && redis.isOpen)) {
+      Logger.error("Redis client not found");
+      throw new Error("Redis client not found");
     }
 
-    // clear old windows
-    while (queue.length > 0 && now - queue[0] > this.windowSizeMs) {
+    let queue = await redis.LRANGE(key, 0, -1);
+    console.log("Id:" + id);
+    console.log("Queue:" + queue);
+
+    // clear old timestamps
+    while (queue.length > 0 && now - parseInt(queue[0]) > this.windowSizeMs) {
       queue.shift();
+    }
+    await redis.DEL(key);
+    // Save the updated queue
+
+    for (let i = 0; i < queue.length; i++) {
+      await redis.LPUSH(key, queue[i]);
     }
 
     if (queue.length >= this.maxRequests) return true;
 
-    // add current window to queue
-    queue.push(now);
+    await redis.LPUSH(key, now.toString());
 
     return false;
   }
@@ -71,7 +62,7 @@ class RateLimiter {
           ?.trim();
         if (!ip || ip?.length === 0) throw new Error("IP address not found");
 
-        const isRateLimited = IPRateLimiter.isRateLimited(ip);
+        const isRateLimited = await IPRateLimiter.isRateLimited(ip);
 
         if (isRateLimited) {
           Logger.warn(`Rate limit reached for IP: ${ip}`);
@@ -85,10 +76,11 @@ class RateLimiter {
         const response = await handler(req);
         return response;
       } catch (error) {
+        Logger.error(`Error in IPRateLimitedEndpoint: ${error}`);
         return NextResponse.json({ error: "Internal Server Error" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
       }
     };
   }
 }
 
-export { RateLimiter, RateLimiterType };
+export { RateLimiter };

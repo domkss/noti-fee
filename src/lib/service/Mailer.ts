@@ -87,6 +87,7 @@ class Mailer {
     );
 
     console.log("Token: " + placeholders.action_url);
+    return true;
 
     try {
       let result = await transport.sendMail(mailOptions);
@@ -96,8 +97,6 @@ class Mailer {
       Logger.error("Error sending verification email: " + error);
       return false;
     }
-
-    return true;
   }
 }
 

@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import Mailer from "@/lib/service/Mailer";
 import { FeeNotificationConfigSchema } from "@/lib/types/ZodSchemas";
 import { StatusCodes as HTTPStatusCode } from "http-status-codes";
-import { RateLimiter, RateLimiterType } from "@/lib/service/RateLimiter";
+import { RateLimiter } from "@/lib/service/RateLimiter";
 import PrismaInstance from "@/lib/service/PrismaInstance";
 import { getNotificationDataFromJWT } from "@/lib/service/NotificationHandler";
 import { createUUID8 } from "@/lib/utility/UtilityFunctions";
+import { error } from "console";
+import Logger from "@/lib/utility/Logger";
 
 export const POST = async (req: NextRequest) => {
   const token = req.headers.get("token");
@@ -18,18 +20,17 @@ export const POST = async (req: NextRequest) => {
 };
 
 // Rate limiter for verification email request
-const VerificationEmailRequestRateLimiterByIP = RateLimiter.getInstance(RateLimiterType.EMAIL_SEND_FROM_IP, {
+const VerificationEmailRequestRateLimiterByIP = RateLimiter.getInstance({
+  namspace: "limit_send_by_ip",
   windowSizeSec: 86400,
   maxRequests: 50,
 });
 //Rate limiter for verification email by email address
-const VerificationEmailRequestRateLimiterByEmail = RateLimiter.getInstance(
-  RateLimiterType.VERIFICATION_EMAIL_BY_RECIPIENT,
-  {
-    windowSizeSec: 86400,
-    maxRequests: 5,
-  },
-);
+const VerificationEmailRequestRateLimiterByEmail = RateLimiter.getInstance({
+  namspace: "limit_send_by_email",
+  windowSizeSec: 86400,
+  maxRequests: 5,
+});
 //Send verification email
 const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
   VerificationEmailRequestRateLimiterByIP,
@@ -49,7 +50,7 @@ const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
         },
       });
 
-      let isRateLimited = VerificationEmailRequestRateLimiterByEmail.isRateLimited(notificationConfig.email);
+      let isRateLimited = await VerificationEmailRequestRateLimiterByEmail.isRateLimited(notificationConfig.email);
 
       if (isRateLimited) {
         if (user && user.credit > 1) {
@@ -73,11 +74,10 @@ const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
       if (success) {
         return Response.json({ message: "Email sent" }, { status: HTTPStatusCode.OK });
       } else {
-        return Response.json({ message: "Failed to send email" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
+        return Response.json({ error: "Failed to send email" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
       }
     } catch (e) {
-      console.error(e);
-      return Response.json({ message: "Invalid request" }, { status: HTTPStatusCode.BAD_REQUEST });
+      return Response.json({ error: "Invalid request" }, { status: HTTPStatusCode.BAD_REQUEST });
     }
   },
 );
