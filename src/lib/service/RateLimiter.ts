@@ -32,8 +32,6 @@ class RateLimiter {
     }
 
     let queue = await redis.LRANGE(key, 0, -1);
-    console.log("Id:" + id);
-    console.log("Queue:" + queue);
 
     // clear old timestamps
     while (queue.length > 0 && now - parseInt(queue[0]) > this.windowSizeMs) {

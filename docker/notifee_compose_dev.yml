@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  notifee-redis:
+    image: redis:6.2-alpine
+    restart: always
+    expose:
+      - "6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass redisDeveloperPW
+    volumes:
+      - notifee_redis:/data
+    networks:
+      notifee-network:
+        ipv4_address: 172.21.0.11
+volumes:
+  notifee_redis:
+    driver: local
+
+networks:
+  notifee-network:
+    driver: bridge
+    name: notifee-network
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
