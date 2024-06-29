@@ -114,11 +114,10 @@ export default function NotificationSetupForm() {
           value={userEmail}
           onChange={(e) => setUserEmail(e.target.value)}
           className={cn(
-            "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
+            "mt-1 block w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
             {
-              "border-2 border-red-600":
-                EmailSchema.safeParse(userEmail).success === false && targetFee.compatible === true,
+              "border-red-600": EmailSchema.safeParse(userEmail).success === false && targetFee.compatible === true,
             },
           )}
         />
@@ -190,12 +189,15 @@ export default function NotificationSetupForm() {
           disabled={!selectedNetwork}
           placeholder={currentFee}
           className={cn(
-            "mt-1 block w-full rounded-lg border bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
+            "mt-1 block w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
-            { "border-2 border-red-600": targetFee.compatible === false },
+            { "border-red-600": targetFee.compatible === false },
             { "cursor-not-allowed": !selectedNetwork },
           )}
         />
+        <Description className="mt-1 text-center text-sm">
+          Enter the amount in either the selected network&apos;s base currency or in USD.
+        </Description>
       </Field>
       <Field>
         <div className="mt-2 text-center text-xl text-black">Notify me when the fee drops below:</div>

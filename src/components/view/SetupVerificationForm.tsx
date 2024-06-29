@@ -10,6 +10,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { StatusCodes as HTTPStatusCodes } from "http-status-codes";
 import { useState } from "react";
+import BalanceTopUpForm from "./BalanceTopUpForm";
 
 interface SetupVerificationFormProps {
   data: FeeNotificationConfig;
@@ -23,12 +24,6 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
   const [activated, setActivated] = useState(props.activated);
 
   async function activateNotification() {
-    if (availableCredit <= 0) {
-      //Todo: Popup a modal to buy credit
-      toast.error("You don't have enough credit to activate notification");
-      return;
-    }
-
     let response = await fetch("/api/notification", {
       method: "POST",
       headers: {
@@ -46,90 +41,93 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
   }
 
   return (
-    <div className="flex h-screen w-full justify-center">
-      <div className="container">
-        <Fieldset className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
-          <Legend className="flex flex-col items-center md:flex-row">
-            <Image className="mr-3" src="/icons/favicon.svg" alt="logo" width={80} height={80} />
-            <Field className="text-black max-sm:text-center">
-              <Label className="font-semibold">NotiFee</Label>
-              <Description>
-                Activate your notification
-                <br />
-                Every activation will cost 1 message credit
-              </Description>
-            </Field>
-          </Legend>
+    <div className="h-screen w-full">
+      <div className="flex justify-center">
+        <div className="container">
+          <Fieldset className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+            <Legend className="flex flex-col items-center md:flex-row">
+              <Image className="mr-3" src="/icons/favicon.svg" alt="logo" width={80} height={80} />
+              <Field className="text-black max-sm:text-center">
+                <Label className="font-semibold">NotiFee</Label>
+                <Description>
+                  Activate your notification
+                  <br />
+                  Every activation will cost 1 message credit
+                </Description>
+              </Field>
+            </Legend>
 
-          <Field className="flex flex-col">
-            <div className="flex flex-col md:flex-row">
-              <div className="flex flex-1 flex-row p-1 ">
-                <div className="font-bold">Email:</div>
-                <div className="mx-2">{props.data.email}</div>
-              </div>
-              <div className="flex flex-1 flex-row p-1 ">
-                <div className="font-bold">Available message credit:</div>
-                <div
-                  className={cn(
-                    "mx-2",
-                    { "font-semibold text-green-500": availableCredit >= 10 },
-                    { "fonst font-semibold text-orange-400": availableCredit < 10 },
-                    { "font-bold text-red-600": availableCredit <= 0 },
-                  )}
-                >
-                  {availableCredit}
+            <Field className="flex flex-col">
+              <div className="flex flex-col md:flex-row">
+                <div className="flex flex-1 flex-row p-1 ">
+                  <div className="font-bold">Email:</div>
+                  <div className="mx-2">{props.data.email}</div>
                 </div>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row">
-              <div className="flex flex-1 flex-row items-center p-1">
-                <div className="font-bold">Currency:</div>
-                <div className="flex flex-row items-center">
-                  <div className="ml-2">{props.data.currency}</div>
-                  <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
-                    <TokenIcon symbol={props.data.currency} size={30} variant="branded" />
+                <div className="flex flex-1 flex-row p-1 ">
+                  <div className="font-bold">Available message credit:</div>
+                  <div
+                    className={cn(
+                      "mx-2",
+                      { "font-semibold text-green-500": availableCredit >= 10 },
+                      { "fonst font-semibold text-orange-400": availableCredit < 10 },
+                      { "font-bold text-red-600": availableCredit <= 0 },
+                    )}
+                  >
+                    {availableCredit}
                   </div>
                 </div>
               </div>
-              <div className="flex flex-1 flex-row items-center p-1 ">
-                <div className="font-bold">Network:</div>
-                <div className="flex flex-row items-center">
-                  <div className="ml-2">{props.data.network}</div>
-                  <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
-                    {getNetworkBaseName(props.data.network) ? (
-                      <NetworkIcon network={getNetworkBaseName(props.data.network)} size={30} variant="branded" />
-                    ) : null}
+              <div className="flex flex-col md:flex-row">
+                <div className="flex flex-1 flex-row items-center p-1">
+                  <div className="font-bold">Currency:</div>
+                  <div className="flex flex-row items-center">
+                    <div className="ml-2">{props.data.currency}</div>
+                    <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
+                      <TokenIcon symbol={props.data.currency} size={30} variant="branded" />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-row items-center p-1 ">
+                  <div className="font-bold">Network:</div>
+                  <div className="flex flex-row items-center">
+                    <div className="ml-2">{props.data.network}</div>
+                    <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
+                      {getNetworkBaseName(props.data.network) ? (
+                        <NetworkIcon network={getNetworkBaseName(props.data.network)} size={30} variant="branded" />
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col md:flex-row">
-              <div className="flex flex-1  flex-row p-1">
-                <div className="font-bold">Exchange:</div>
-                <div className="mx-2">{getExchangeNameById(props.data.exchange)}</div>
+              <div className="flex flex-col md:flex-row">
+                <div className="flex flex-1  flex-row p-1">
+                  <div className="font-bold">Exchange:</div>
+                  <div className="mx-2">{getExchangeNameById(props.data.exchange)}</div>
+                </div>
+                <div className="flex flex-1  flex-row p-1 ">
+                  <div className="font-bold">Target Fee:</div>
+                  <div className="mx-2">{props.data.targetFee + " " + props.data.targetCurrency}</div>
+                </div>
               </div>
-              <div className="flex flex-1  flex-row p-1 ">
-                <div className="font-bold">Target Fee:</div>
-                <div className="mx-2">{props.data.targetFee + " " + props.data.targetCurrency}</div>
-              </div>
+            </Field>
+          </Fieldset>
+          <div className={cn("flex flex-col items-center justify-center p-3", { hidden: availableCredit <= 0 })}>
+            <div className={cn("my-2", { hidden: !activated })}>
+              Status: <span className="font-bold text-green-500">Active</span>
             </div>
-          </Field>
-        </Fieldset>
-        <div className="flex flex-col items-center justify-center p-3">
-          <div className={cn("my-2", { hidden: !activated })}>
-            Status: <span className="font-bold text-green-500">Active</span>
+            <Button
+              className={cn("rounded-md bg-emerald-500  px-3 py-2 text-white hover:bg-emerald-600 max-sm:w-full", {
+                "cursor-default bg-gray-400 hover:bg-gray-400": activated,
+              })}
+              onClick={activateNotification}
+              disabled={activated}
+            >
+              Activate Notification (1 credit)
+            </Button>
           </div>
-          <Button
-            className={cn("rounded-md bg-emerald-500  px-3 py-2 text-white hover:bg-emerald-600 max-sm:w-full", {
-              "cursor-default bg-gray-400 hover:bg-gray-400": activated,
-            })}
-            onClick={activateNotification}
-            disabled={activated}
-          >
-            Activate Notification (1 credit)
-          </Button>
         </div>
       </div>
+      <BalanceTopUpForm />
     </div>
   );
 }
