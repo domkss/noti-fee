@@ -37,9 +37,7 @@ RUN apk --no-cache add curl bash && \
     addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \
     mkdir .next && \
-    chown nextjs:nodejs .next && \
-	mkdir logs && \
-	chown nextjs:nodejs logs
+    chown nextjs:nodejs .next
 
 # Copy built files from the builder stage
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next

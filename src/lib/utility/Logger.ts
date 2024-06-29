@@ -1,20 +1,29 @@
-import { createLogger, format, transports } from "winston";
+import "server-only";
+import winston from "winston";
+import WinstonCloudwatch from "winston-cloudwatch";
 
-const { combine, timestamp, printf } = format;
+const transports: winston.transport[] = [new winston.transports.Console()];
 
-// Define a custom format for log messages
-const myFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} [${level}]: ${message}`;
-});
+if (process.env.NODE_ENV === "production") {
+  const cloudWatchTransport = new WinstonCloudwatch({
+    logGroupName: "Notifee-Backend-Logs",
+    logStreamName: "Notifee-Backend-Logs-Stream",
+    awsOptions: {
+      credentials: {
+        accessKeyId: process.env.CLOUD_WATCH_ACCESS_KEY!,
+        secretAccessKey: process.env.CLOUD_WATCH_SECRET_KEY!,
+      },
+      region: process.env.AWS_REGION!,
+    },
+    jsonMessage: true,
+  });
+  transports.push(cloudWatchTransport);
+}
 
-// Create a logger instance
-const Logger = createLogger({
-  level: "info", // Set the default logging level
-  format: combine(timestamp(), myFormat),
-  transports: [
-    new transports.Console(), // Log to the console
-    new transports.File({ filename: "logs/application.log" }), // Log to a file
-  ],
+const Logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+  transports: transports,
 });
 
 export default Logger;
