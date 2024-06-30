@@ -8,6 +8,7 @@ import { getNotificationDataFromJWT } from "@/lib/service/NotificationHandler";
 import { createUUID8 } from "@/lib/utility/UtilityFunctions";
 import { error } from "console";
 import Logger from "@/lib/utility/Logger";
+import { TEMPORARY_EMAIL_DOMAIN_BLOCK_LIST } from "@/lib/utility/ConstData";
 
 export const POST = async (req: NextRequest) => {
   const token = req.headers.get("token");
@@ -38,6 +39,15 @@ const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
     try {
       const content = await req.json();
       const notificationConfig = FeeNotificationConfigSchema.parse(content);
+
+      //Disallow temporary email addresses
+      if (TEMPORARY_EMAIL_DOMAIN_BLOCK_LIST.includes(notificationConfig.email.split("@")[1])) {
+        return Response.json(
+          { error: "Temporary email addresses are not allowed" },
+          { status: HTTPStatusCode.BAD_REQUEST },
+        );
+      }
+
       //Generate a new UUID for each request
       notificationConfig.uuid = createUUID8(notificationConfig);
 
@@ -63,7 +73,7 @@ const SendVerificationEmail = RateLimiter.IPRateLimitedEndpoint(
             },
           });
         } else
-          return NextResponse.json(
+          return Response.json(
             { error: "You have reached the rate limit. Please try again later." },
             { status: HTTPStatusCode.TOO_MANY_REQUESTS },
           );

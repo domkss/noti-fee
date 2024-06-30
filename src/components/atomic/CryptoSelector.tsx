@@ -60,7 +60,7 @@ function CryptoSelector(props: CryptoSelectorProps) {
             onChange={(event) => setQuery(event.target.value)}
           />
           <ComboboxButton className="absolute inset-y-0 right-0 flex items-center justify-center px-2.5">
-            <div className="rounded-full bg-emerald-100 shadow-md">
+            <div className="mr-1 rounded-full bg-emerald-100 shadow-md">
               {isCurrencyDetail(selected) || getNetworkBaseName(selected.name) === "" ? (
                 <TokenIcon
                   symbol={isCurrencyDetail(selected) ? selected.symbol : selected.network}

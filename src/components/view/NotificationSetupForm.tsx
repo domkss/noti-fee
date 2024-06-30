@@ -18,6 +18,7 @@ export default function NotificationSetupForm() {
   const [supportedCurrenciesData, setSupportedCurrenciesData] = useState<Map<string, CurrencyDetail[]>>(new Map());
 
   const [userEmail, setUserEmail] = useState("");
+  const [emailIsTemporary, setEmailIsTemporary] = useState(false);
   const [selectedExchange, setSelectedExchange] = useState("");
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyDetail | null>(null);
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkFeeDetail | null>(null);
@@ -57,6 +58,7 @@ export default function NotificationSetupForm() {
   }, []);
 
   const resetUI = () => {
+    setEmailIsTemporary(false);
     setUserEmail("");
     setSelectedCurrency(null);
     setSelectedNetwork(null);
@@ -89,6 +91,13 @@ export default function NotificationSetupForm() {
           resetUI();
         } else if (response.status === HTTPStatusCodes.TOO_MANY_REQUESTS) {
           toast.error("Too many requests. Please try again later.");
+        } else if (response.status === HTTPStatusCodes.BAD_REQUEST) {
+          let response_content = (response = await response.json());
+
+          if (response_content.error === "Temporary email addresses are not allowed") {
+            setEmailIsTemporary(true);
+          }
+          toast.error(response_content.error || "Invalid request");
         } else {
           toast.error("Internal server error. Please try again later.");
         }
@@ -112,12 +121,17 @@ export default function NotificationSetupForm() {
         <Label className="text-sm/6 font-medium text-black">Your Email Address</Label>
         <Input
           value={userEmail}
-          onChange={(e) => setUserEmail(e.target.value)}
+          onChange={(e) => {
+            setUserEmail(e.target.value);
+            setEmailIsTemporary(false);
+          }}
           className={cn(
             "mt-1 block w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
             {
-              "border-red-600": EmailSchema.safeParse(userEmail).success === false && targetFee.compatible === true,
+              "border-red-600":
+                (EmailSchema.safeParse(userEmail).success === false || emailIsTemporary) &&
+                targetFee.compatible === true,
             },
           )}
         />
@@ -228,10 +242,10 @@ export default function NotificationSetupForm() {
             "text-md mt-3 rounded bg-emerald-500 px-4 py-2 text-white data-[active]:bg-emerald-600 data-[hover]:bg-emerald-600",
             {
               "bounce-and-shake cursor-not-allowed bg-red-500 data-[active]:bg-red-500 data-[hover]:bg-red-500":
-                targetFee.compatible !== true &&
-                !inputCorrectionInProgress &&
-                FeeNotificationConfigSchema.safeParse(formData).success === false &&
-                targetFee.compatible !== null,
+                (targetFee.compatible === false &&
+                  !inputCorrectionInProgress &&
+                  FeeNotificationConfigSchema.safeParse(formData).success === false) ||
+                emailIsTemporary === true,
             },
             {
               "bounce-and-shake cursor-not-allowed bg-slate-400 data-[active]:bg-slate-500 data-[hover]:bg-slate-500":
