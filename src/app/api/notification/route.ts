@@ -6,7 +6,6 @@ import { RateLimiter } from "@/lib/service/RateLimiter";
 import PrismaInstance from "@/lib/service/PrismaInstance";
 import { getNotificationDataFromJWT } from "@/lib/service/NotificationHandler";
 import { createUUID8 } from "@/lib/utility/UtilityFunctions";
-import { error } from "console";
 import Logger from "@/lib/utility/Logger";
 import { TEMPORARY_EMAIL_DOMAIN_BLOCK_LIST } from "@/lib/utility/ConstData";
 

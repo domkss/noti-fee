@@ -82,13 +82,13 @@ export default function FAQView() {
       <Disclosure as="div" className="p-6">
         <DisclosureButton className="group flex w-full items-center justify-between">
           <span className="text-md font-medium text-black group-data-[hover]:text-black/80">
-            Terms of Use and Privacy Policy
+            Terms of Service and Privacy Policy
           </span>
           <ChevronDownIcon className="size-5 fill-black group-data-[open]:rotate-180 group-data-[hover]:fill-black" />
         </DisclosureButton>
         <DisclosurePanel className="text-md mt-2 text-gray-800">
-          The Terms of Use can be found{" "}
-          <a href="/legal/termsofuse" className="text-blue-500">
+          The Terms of Service can be found{" "}
+          <a href="/legal/termsofservice" className="text-blue-500">
             here
           </a>{" "}
           and the Privacy Policy can be found{" "}

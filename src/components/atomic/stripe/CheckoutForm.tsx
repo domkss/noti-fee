@@ -1,8 +1,9 @@
 // components/CheckoutForm.tsx
 import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
+import { PaymentMethodCreateParams } from "@stripe/stripe-js";
 
-const CheckoutForm = () => {
+const CheckoutForm = ({ billingDetails }: { billingDetails: PaymentMethodCreateParams.BillingDetails }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +21,9 @@ const CheckoutForm = () => {
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
+        payment_method_data: {
+          //billing_details:
+        },
         return_url: `${window.location.origin}/success`,
       },
     });

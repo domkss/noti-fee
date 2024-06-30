@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FeeNotificationConfigSchema } from "./ZodSchemas";
+import { FeeNotificationConfigSchema, CustomerBillingSchema } from "./ZodSchemas";
 
 export interface CurrencyDetail {
   symbol: string;
@@ -28,3 +28,5 @@ export interface ResponseCurrentFees {
 }
 
 export type FeeNotificationConfig = z.infer<typeof FeeNotificationConfigSchema>;
+
+export type CustomerBillingData = z.infer<typeof CustomerBillingSchema>;

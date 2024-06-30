@@ -1,11 +1,18 @@
-import React from "react";
+import Link from "next/link";
+import { ChevronDoubleLeftIcon } from "@heroicons/react/20/solid";
 
 const TermsOfUse = () => {
   return (
     <div className="flex min-h-screen flex-row justify-center">
       <div className="container mb-6 flex flex-col p-4">
         <div>
-          <h1 className="mb-6 text-3xl font-bold">NotiFee Terms of Use</h1>
+          <Link href="/">
+            <div className="mb-5 flex items-center">
+              <ChevronDoubleLeftIcon title="ABC" height={20} width={20} />
+              <span className="text-nowrap">Go Back</span>
+            </div>
+          </Link>
+          <h1 className="mb-6 text-3xl font-bold">NotiFee Terms of Service</h1>
           <p className="font-bold">Last Updated: 2024.06.22</p>
           <p className="font-semibold">Version: 1</p>
           <section className="mb-6 mt-4">
@@ -211,6 +218,47 @@ const TermsOfUse = () => {
             <p>
               These Terms of Use and any action related thereto will be governed by the laws of the jurisdiction in
               which NotiFee operates without regard to its conflict of law provisions.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="mb-2 text-xl font-semibold">Indemnification</h2>
+            <p>
+              You agree to indemnify, defend, and hold harmless NotiFee, its affiliates, officers, directors, employees,
+              and agents from and against any and all claims, damages, obligations, losses, liabilities, costs, or debt,
+              and expenses (including but not limited to attorney&apos;s fees) arising from: (i) your use of and access
+              to the Service; (ii) your violation of any term of these Terms of Use; (iii) your violation of any
+              third-party right, including without limitation any copyright, property, or privacy right; or (iv) any
+              claim that your use of the Service caused damage to a third party.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="mb-2 text-xl font-semibold">Third-Party Services</h2>
+            <p>
+              The Service may include links to third-party websites or services that are not owned or controlled by
+              NotiFee. NotiFee has no control over, and assumes no responsibility for, the content, privacy policies, or
+              practices of any third-party websites or services. You acknowledge and agree that NotiFee shall not be
+              responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or
+              in connection with use of or reliance on any such content, goods, or services available on or through any
+              such websites or services.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="mb-2 text-xl font-semibold">Severability</h2>
+            <p>
+              If any provision of these Terms of Use is found to be invalid or unenforceable by a court of competent
+              jurisdiction, the remaining provisions of these Terms will remain in full force and effect.
+            </p>
+          </section>
+
+          <section className="mb-6">
+            <h2 className="mb-2 text-xl font-semibold">Entire Agreement</h2>
+            <p>
+              These Terms of Use, along with the Privacy Policy, constitute the entire agreement between you and NotiFee
+              regarding the use of the Service, superseding any prior agreements between you and NotiFee relating to
+              your use of the Service.
             </p>
           </section>
 

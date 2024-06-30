@@ -134,6 +134,8 @@ export default function NotificationSetupForm() {
                 targetFee.compatible === true,
             },
           )}
+          autoComplete="email"
+          required
         />
       </Field>
       <Field>
@@ -208,6 +210,7 @@ export default function NotificationSetupForm() {
             { "border-red-600": targetFee.compatible === false },
             { "cursor-not-allowed": !selectedNetwork },
           )}
+          required
         />
         <Description className="mt-1 text-center text-sm">
           Enter the amount in either the selected network&apos;s base currency or in USD.

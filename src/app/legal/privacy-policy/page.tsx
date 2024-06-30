@@ -1,10 +1,17 @@
-import React from "react";
+import Link from "next/link";
+import { ChevronDoubleLeftIcon } from "@heroicons/react/20/solid";
 
 const PrivacyPolicy = () => {
   return (
     <div className="flex min-h-screen flex-row justify-center">
       <div className="container mb-6 flex flex-col p-4">
         <div>
+          <Link href="/">
+            <div className="mb-5 flex items-center">
+              <ChevronDoubleLeftIcon title="ABC" height={20} width={20} />
+              <span className="text-nowrap">Go Back</span>
+            </div>
+          </Link>
           <h1 className="mb-6 text-3xl font-bold">Privacy Policy</h1>
           <p className="font-bold">Last Updated: 2024.06.22</p>
           <p className="font-semibold">Version: 1</p>
@@ -27,12 +34,22 @@ const PrivacyPolicy = () => {
             <ul className="list-inside list-disc">
               <li>Email address</li>
               <li>Notification preferences</li>
-              <li>Transaction details related to the purchase of credits</li>
+              <li>Transaction details related to the purchase of credits, including billing information</li>
             </ul>
             <p>
               We may also automatically collect certain information about your device and usage patterns when you access
               or interact with our website.
             </p>
+            <h2 className="my-2 text-xl font-semibold">Cradit Card Information</h2>
+            <p>
+              We do not collect or store credit/debit card information. <br />
+              This information is only processed by our payment processor{" "}
+              <a href="https://stripe.com/" className="text-blue-500">
+                Stripe
+              </a>{" "}
+              through their secure payment gateway.
+            </p>
+
             <h2 className="my-2 text-xl font-semibold">Analytics by Stripe</h2>
             <p>
               We use Stripe for payment, analytics, and other business services. Stripe collects identifying information

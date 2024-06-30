@@ -16,3 +16,15 @@ export const FeeNotificationConfigSchema = z.object({
   targetFee: z.number(),
   targetCurrency: z.string(),
 });
+
+export const CustomerBillingSchema = z.object({
+  email: EmailSchema,
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  addressLine1: z.string().min(1),
+  addressLine2: z.string(),
+  city: z.string().min(1),
+  state: z.string(),
+  postalCode: z.string().min(1),
+  country: z.string().min(1),
+});

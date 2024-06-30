@@ -127,7 +127,7 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
           </div>
         </div>
       </div>
-      <BalanceTopUpForm />
+      <BalanceTopUpForm email={props.data.email} />
     </div>
   );
 }
