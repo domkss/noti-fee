@@ -4,6 +4,7 @@ import { CurrencyDetail } from "@/lib/types/TransferTypes";
 import CoinCapClient from "./CoinCapClient";
 import Logger from "../utility/Logger";
 import crypto from "crypto";
+import { getErrorMessage } from "../utility/UtilityFunctions";
 
 class BinanceClient {
   private static instance: BinanceClient;
@@ -36,7 +37,7 @@ class BinanceClient {
     let currentTime = Date.now();
 
     if (currentTime - this.lastDataUpdateTimeStamp < this.UPDATE_INTERVAL_MS) {
-      Logger.info("Binance Client: Data is up to date. No need to refresh.");
+      Logger.info({ message: "Binance Client: Data is up to date." });
       return;
     }
 
@@ -46,7 +47,7 @@ class BinanceClient {
     }
 
     await this.calculateWithdrawalFees();
-    Logger.info("Binance Client: Data has been refreshed.");
+    Logger.info({ message: "Binance Client: Data refreshed." });
   }
 
   public getCachedWithdrawalFees(): CurrencyDetail[] {
@@ -162,7 +163,7 @@ class BinanceClient {
     }
 
     //Get Data from Binance API
-    Logger.info("Binance Client: Fetching currency data from Binance API.");
+    Logger.info({ message: "Getting currency data from Binance API" });
 
     // Get the server time
     const timestamp = await this.getBinanceServerTime();
@@ -199,7 +200,11 @@ class BinanceClient {
     });
 
     if (!response.ok || response.status !== 200) {
-      Logger.error("Binance Client: Failed to get currency data from Binance API.");
+      Logger.error({
+        message: "Failed to get currency data from Binance API",
+        status: response.status,
+        statusText: response.statusText,
+      });
       return false;
     }
 
@@ -208,7 +213,7 @@ class BinanceClient {
       this.rawCurrencyDataFromBinance = jsonResponse;
       return true;
     } catch (e) {
-      Logger.error("Binance Client: Failed to parse currency data from Binance API.");
+      Logger.error({ message: "Failed to parse currency data from Binance API", error: getErrorMessage(e) });
       return false;
     }
   }
@@ -217,14 +222,18 @@ class BinanceClient {
     const REQUEST_URL = "https://api.binance.com/api/v3/time";
     const response = await fetch(REQUEST_URL);
     if (!response.ok) {
-      Logger.error("Binance Client: Failed to get server time from Binance API.");
+      Logger.error({
+        message: "Failed to get server time from Binance API",
+        status: response.status,
+        statusText: response.statusText,
+      });
       return null;
     }
 
     const response_data = await response.json();
 
     if (!response_data.serverTime) {
-      Logger.error("Binance Client: Failed to get server time from the response.");
+      Logger.error({ message: "Failed to parse server time from Binance API" });
       return null;
     }
 

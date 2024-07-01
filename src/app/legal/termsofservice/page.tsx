@@ -135,6 +135,12 @@ const TermsOfUse = () => {
               purchased, they are bound to the user account and can only be used through that account. We do not offer
               refunds for unused credits or any other reason. Please consider this before purchasing any.
             </p>
+            <p>
+              If there is an issue during the purchase process or it results in unreceived credits, please contact us at{" "}
+              <a href="mailto:contact@notifee.me" className="text-blue-500 hover:underline">
+                contact@notifee.me
+              </a>
+            </p>
           </section>
 
           <section className="mb-6">
@@ -275,8 +281,8 @@ const TermsOfUse = () => {
             <h2 className="mb-2 text-xl font-semibold">Contact Information</h2>
             <p>
               If you have any questions about these Terms of Use, please contact us at{" "}
-              <a href="mailto:support@notifee.com" className="text-blue-500 hover:underline">
-                support@notifee.com
+              <a href="mailto:contact@notifee.me" className="text-blue-500 hover:underline">
+                contact@notifee.me
               </a>
               .
             </p>

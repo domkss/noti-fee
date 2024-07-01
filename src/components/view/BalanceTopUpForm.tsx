@@ -9,7 +9,12 @@ import { COUNTRIES } from "@/lib/utility/ConstData";
 import { CustomerBillingData } from "@/lib/types/TransferTypes";
 import { CustomerBillingSchema } from "@/lib/types/ZodSchemas";
 
-export default function BalanceTopUpPage({ email }: { email: string }) {
+interface BalanceTopUpPageProps {
+  email: string;
+  notificationJWT: string;
+}
+
+export default function BalanceTopUpPage(props: BalanceTopUpPageProps) {
   type Step = "billing" | "payment";
   const [currentStep, setCurrentStep] = useState<Step>("billing");
   const [country, setCountry] = useState<string>("");
@@ -24,7 +29,7 @@ export default function BalanceTopUpPage({ email }: { email: string }) {
   const [acceptNoRefoundPolicy, setAcceptNoRefoundPolicy] = useState(false);
 
   const billingFormData: CustomerBillingData = {
-    email: email,
+    email: props.email,
     firstName: firstName,
     lastName: lastName,
     addressLine1: addressLine1,
@@ -108,7 +113,13 @@ export default function BalanceTopUpPage({ email }: { email: string }) {
               NotiFee
             </a>
           </p>
-          <Image src={"/icons/stripe_payment_logo.svg"} alt="Stripe undraw logo" width={75} height={75} />
+          <Image
+            className="h-[75px] w-[75px]"
+            src={"/icons/stripe_payment_logo.svg"}
+            alt="Stripe undraw logo"
+            width={75}
+            height={75}
+          />
         </div>
       </div>
     );
@@ -116,9 +127,7 @@ export default function BalanceTopUpPage({ email }: { email: string }) {
 
   return (
     <div className=" p-4">
-      <div className="mb-3 text-center text-lg font-semibold text-blue-400">
-        Top up your message credit balance to continue
-      </div>
+      <div className="mb-3 text-center text-lg font-semibold text-blue-400">Buy message credits</div>
       <Pagination currentStep={currentStep} />
       {currentStep === "billing" ? (
         <form
@@ -310,7 +319,7 @@ export default function BalanceTopUpPage({ email }: { email: string }) {
                       </svg>
                     </Checkbox>
                     <span className="ml-2">
-                      I understand that this purchase is non-refundable and non-transferable. *
+                      I understand that credit purchases are non-refundable and non-transferable. *
                     </span>
                   </div>
                 </Field>
@@ -340,7 +349,7 @@ export default function BalanceTopUpPage({ email }: { email: string }) {
         <div className="flex flex-col p-4 md:flex-row md:justify-center">
           <PriceInformation />
           <div className="m-2 flex w-full max-w-sm flex-1 items-center justify-center rounded-lg bg-white shadow-sm">
-            <StripeContainer customerBillingData={billingFormData} />
+            <StripeContainer customerBillingData={billingFormData} notificationJWT={props.notificationJWT} />
           </div>
         </div>
       )}

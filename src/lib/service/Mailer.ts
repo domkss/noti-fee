@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import Logger from "../utility/Logger";
 import { FeeNotificationConfig } from "../types/TransferTypes";
+import { getErrorMessage } from "../utility/UtilityFunctions";
 
 class Mailer {
   static async sendVerificationEmail(notification: FeeNotificationConfig): Promise<boolean> {
@@ -23,7 +24,7 @@ class Mailer {
       !from_email ||
       !from_email_name
     ) {
-      Logger.error("NodeMailer Env configuration is incorrect");
+      Logger.error({ message: "Nodemailer Configuration incorrect", severity: "Critical" });
       throw new Error("Configuration incorrect");
     }
 
@@ -43,11 +44,15 @@ class Mailer {
 
     const emailTemplatePath = "resources/email_templates/enable_notification_email.html";
     let data = await fs.readFile(emailTemplatePath, "utf-8").catch((e) => {
-      Logger.error(e);
+      Logger.error({ message: "Error reading email template", error: getErrorMessage(e), severity: "Critical" });
       return null;
     });
     const logoPath = "resources/email_templates/logo.png";
-    let logoFile = await fs.readFile(logoPath).catch(Logger.error);
+    let logoFile = await fs
+      .readFile(logoPath)
+      .catch((e) =>
+        Logger.error({ message: "Error reading logo file", error: getErrorMessage(e), severity: "Critical" }),
+      );
 
     if (!data) {
       return false;
@@ -79,22 +84,19 @@ class Mailer {
         },
       ],
     };
-    Logger.info(
-      "Verification email sent: " +
-        Object.entries(notification)
-          .map(([key, value]) => `${key}=${value}`)
-          .join(" "),
-    );
 
     console.log("Token: " + placeholders.action_url);
     return true;
 
     try {
       let result = await transport.sendMail(mailOptions);
-      Logger.info("Email sent: " + result.response);
+      Logger.info({
+        message: "Sending verification email",
+        verificationEmail: notification,
+      });
       return true;
     } catch (error) {
-      Logger.error("Error sending verification email: " + error);
+      Logger.error({ message: "Failed to send verification email", error: getErrorMessage(error) });
       return false;
     }
   }

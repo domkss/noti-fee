@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient, RedisClientType } from "redis";
 import Logger from "../utility/Logger";
+import { getErrorMessage } from "../utility/UtilityFunctions";
 
 class RedisInstance {
   private static client: RedisClientType;
@@ -23,7 +24,7 @@ class RedisInstance {
       this.errorCounter++;
 
       if (this.errorCounter > 5) {
-        Logger.error("RedisInstance Error", err);
+        Logger.error({ message: "Redis instance error", error: getErrorMessage(err) });
         await this.client.disconnect();
       }
     });

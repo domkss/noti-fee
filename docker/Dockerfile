@@ -51,7 +51,7 @@ COPY .env ./
 RUN npm install --only=production
 
 # Run Prisma migrations
-RUN npx prisma migrate deploy
+RUN envkey-source -w --rolling -- npx prisma migrate deploy
 
 # Set environment variables from .env file
 ENV $(cat .env | grep -v ^# | xargs)

@@ -1,4 +1,3 @@
-// components/CheckoutForm.tsx
 import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { PaymentMethodCreateParams } from "@stripe/stripe-js";
@@ -22,7 +21,7 @@ const CheckoutForm = ({ billingDetails }: { billingDetails: PaymentMethodCreateP
       elements,
       confirmParams: {
         payment_method_data: {
-          //billing_details:
+          billing_details: billingDetails,
         },
         return_url: `${window.location.origin}/success`,
       },

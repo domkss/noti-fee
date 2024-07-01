@@ -1,5 +1,6 @@
 import { COINCAP_DUMMY_DATA } from "./_developer_data";
 import Logger from "../utility/Logger";
+import { getErrorMessage } from "../utility/UtilityFunctions";
 
 class CoinCapClient {
   private static instance: CoinCapClient;
@@ -30,7 +31,7 @@ class CoinCapClient {
   public async refreshData(): Promise<void> {
     let currentTime = Date.now();
     if (currentTime - this.lastDataUpdateTimeStamp < this.UPDATE_INTERVAL_MS) {
-      Logger.info("CoinCap Client: Data is up to date. No need to refresh.");
+      Logger.info({ message: "CoinCap Client: Data is up to date." });
       return;
     }
 
@@ -51,7 +52,7 @@ class CoinCapClient {
     }
 
     //Get Data from CoinCap API
-    Logger.info("CoinCap Client: Fetching currency metadata from CoinCap API.");
+    Logger.info({ message: "CoinCap Client: Fetching currency metadata from CoinCap API" });
 
     const REQUEST_URL = "https://api.coincap.io/v2/assets?limit=200";
     let response = await fetch(REQUEST_URL);
@@ -61,11 +62,18 @@ class CoinCapClient {
         this.rawCurrencyDataFromCoinCap = jsonBody.data;
         return true;
       } catch (e) {
-        Logger.error("CoinCap Client: Failed to parse JSON response from CoinCap API");
+        Logger.error({
+          message: "CoinCap Client: Failed to parse JSON response from CoinCap API",
+          error: getErrorMessage(e),
+        });
         return false;
       }
     }
-    Logger.error("CoinCap Client: Failed to fetch currency metadata from CoinCap API.");
+    Logger.error({
+      message: "CoinCap Client: Failed to fetch currency metadata from CoinCap API",
+      status: response.status,
+      statusText: response.statusText,
+    });
     return false;
   }
 

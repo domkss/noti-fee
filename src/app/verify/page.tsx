@@ -18,7 +18,7 @@ async function VerifyPage({ searchParams }: { searchParams?: { [key: string]: st
         <SetupVerificationForm
           data={decoded}
           availableCredit={user?.credit ?? 0}
-          token={token}
+          notificationJWT={token}
           activated={user?.notifications.some((n) => n.id === decoded.uuid) ?? false}
         />
       );

@@ -7,15 +7,24 @@ import { StripeElementsOptions } from "@stripe/stripe-js";
 import Spinner from "../Spinner";
 import { CustomerBillingData } from "@/lib/types/TransferTypes";
 
+interface StripeContainerProps {
+  customerBillingData: CustomerBillingData;
+  notificationJWT: string;
+}
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
-const StripeContainer = ({ customerBillingData }: { customerBillingData: CustomerBillingData }) => {
+const StripeContainer = (props: StripeContainerProps) => {
   const [clientSecret, setClientSecret] = useState("");
 
   useEffect(() => {
     fetch("/api/create-payment-intent", {
       method: "POST",
-      body: JSON.stringify({ customerBillingData }),
+      headers: {
+        "Content-Type": "application/json",
+        token: props.notificationJWT,
+      },
+      body: JSON.stringify({ customerBillingData: props.customerBillingData }),
     })
       .then((res) => res.json())
       .then((data) => setClientSecret(data.clientSecret));
@@ -34,15 +43,15 @@ const StripeContainer = ({ customerBillingData }: { customerBillingData: Custome
         <Elements stripe={stripePromise} options={options}>
           <CheckoutForm
             billingDetails={{
-              name: `${customerBillingData.firstName} ${customerBillingData.lastName}`,
-              email: customerBillingData.email,
+              name: `${props.customerBillingData.firstName} ${props.customerBillingData.lastName}`,
+              email: props.customerBillingData.email,
               address: {
-                city: customerBillingData.city,
-                country: customerBillingData.country,
-                line1: customerBillingData.addressLine1,
-                line2: customerBillingData.addressLine2,
-                postal_code: customerBillingData.postalCode,
-                state: customerBillingData.state,
+                city: props.customerBillingData.city,
+                country: props.customerBillingData.country,
+                line1: props.customerBillingData.addressLine1,
+                line2: props.customerBillingData.addressLine2,
+                postal_code: props.customerBillingData.postalCode,
+                state: props.customerBillingData.state,
               },
             }}
           />

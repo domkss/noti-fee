@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { StatusCodes as HTTPStatusCode } from "http-status-codes";
 import Logger from "@/lib/utility/Logger";
 import RedisInstance from "./RedisInstance";
+import { getErrorMessage } from "../utility/UtilityFunctions";
 
 type NextApiHandler = (req: NextRequest) => Promise<Response>;
 
-type NameSpaces = "limit_send_by_ip" | "limit_send_by_email";
+type NameSpaces =
+  | "limit_send_by_ip"
+  | "limit_send_by_email"
+  | "limit_payment_intent_by_email"
+  | "limit_payment_intent_by_ip";
 
 class RateLimiter {
   readonly namspace: NameSpaces;
@@ -27,7 +32,7 @@ class RateLimiter {
     const key = `${this.namspace}:${id}`;
     let redis = await RedisInstance.getClient();
     if (!(redis && redis.isOpen)) {
-      Logger.error("Redis client not found");
+      Logger.error({ message: "Redis client not found", namespace: this.namspace, severity: "Critical" });
       throw new Error("Redis client not found");
     }
 
@@ -58,12 +63,15 @@ class RateLimiter {
           .split(",")
           .shift()
           ?.trim();
-        if (!ip || ip?.length === 0) throw new Error("IP address not found");
+        if (!ip || ip?.length === 0) {
+          Logger.error({ message: "IP address not found", namespace: IPRateLimiter.namspace });
+          throw new Error("IP address not found");
+        }
 
         const isRateLimited = await IPRateLimiter.isRateLimited(ip);
 
         if (isRateLimited) {
-          Logger.warn(`Rate limit reached for IP: ${ip}`);
+          Logger.warn({ message: "Rate limit reached", ip, namespace: IPRateLimiter.namspace });
 
           return NextResponse.json(
             { error: "You have reached the rate limit. Please try again later." },
@@ -74,7 +82,7 @@ class RateLimiter {
         const response = await handler(req);
         return response;
       } catch (error) {
-        Logger.error(`Error in IPRateLimitedEndpoint: ${error}`);
+        Logger.error({ message: "Internal Server Error", error: getErrorMessage(error) });
         return NextResponse.json({ error: "Internal Server Error" }, { status: HTTPStatusCode.INTERNAL_SERVER_ERROR });
       }
     };

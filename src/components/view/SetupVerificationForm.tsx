@@ -15,7 +15,7 @@ import BalanceTopUpForm from "./BalanceTopUpForm";
 interface SetupVerificationFormProps {
   data: FeeNotificationConfig;
   availableCredit: number;
-  token: string;
+  notificationJWT: string;
   activated: boolean;
 }
 
@@ -28,7 +28,7 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        token: props.token,
+        token: props.notificationJWT,
       },
     });
     if (response.ok && response.status === HTTPStatusCodes.OK) {
@@ -127,7 +127,9 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
           </div>
         </div>
       </div>
-      <BalanceTopUpForm email={props.data.email} />
+      {props.availableCredit <= 10 ? (
+        <BalanceTopUpForm email={props.data.email} notificationJWT={props.notificationJWT} />
+      ) : null}
     </div>
   );
 }
