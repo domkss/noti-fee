@@ -36,20 +36,22 @@ model Notification {
 }
 
 model Payment {
-  id           String   @id @unique
-  createdAt    DateTime @default(now()) @db.Timestamp(6)
-  firstName    String
-  lastName     String
-  addressLine1 String
-  addressLine2 String
-  city         String
-  state        String
-  postalCode   String
-  country      String
-  amount       Decimal
-  currency     String
-  ipAddress    String
-  user         User?    @relation(fields: [userEmail], references: [email])
-  userEmail    String?
-  redirect_JWT String
-}
+  id                String     @id @unique
+  createdAt         DateTime   @default(now()) @db.Timestamp(6)
+  paymentConfirmed  Boolean    @default(false)
+  firstName         String
+  lastName          String
+  addressLine1      String
+  addressLine2      String
+  city              String
+  state             String
+  postalCode        String
+  country           String
+  amount            Decimal
+  currency          String
+  ipAddress         String
+  user              User?      @relation(fields: [userEmail], references: [email])
+  userEmail         String?
+  redirect_JWT      String
+}     
+    

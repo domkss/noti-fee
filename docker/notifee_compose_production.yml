@@ -12,6 +12,25 @@ services:
     networks:
       notifee-network:
         ipv4_address: 172.21.0.11
+
+
+
+  notifee-postgresql:
+      image: postgres:latest
+      restart: always
+      expose:
+        - "6379"
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_DB: notifee-database
+        POSTGRES_USER: notifee
+        POSTGRES_PASSWORD: postgreDeveloperPW
+      volumes:
+        - postgresql_data:/var/lib/postgresql/data
+      networks:
+        notifee-network:
+          ipv4_address: 172.21.0.12
   notifee-app:
     build:
       context: ../
@@ -30,7 +49,9 @@ services:
 volumes:
   notifee_redis:
     driver: local
-
+  postgresql_data:
+    driver: local 
+    
 networks:
   notifee-network:
     driver: bridge

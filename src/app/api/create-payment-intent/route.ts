@@ -167,8 +167,6 @@ export const POST = RateLimiter.IPRateLimitedEndpoint(
       });
 
       return Response.json({ clientSecret: paymentIntent.client_secret }, { status: HTTPStatusCodes.OK });
-
-      return Response.json({ error: "Not implemented" }, { status: HTTPStatusCodes.INTERNAL_SERVER_ERROR });
     } catch (err) {
       Logger.error({ message: "Error during payment intent creation", error: getErrorMessage(err) });
       return Response.json({ error: "Internal Server Error" }, { status: HTTPStatusCodes.INTERNAL_SERVER_ERROR });

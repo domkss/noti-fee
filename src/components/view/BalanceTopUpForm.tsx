@@ -348,7 +348,7 @@ export default function BalanceTopUpPage(props: BalanceTopUpPageProps) {
       ) : (
         <div className="flex flex-col p-4 md:flex-row md:justify-center">
           <PriceInformation />
-          <div className="m-2 flex w-full max-w-sm flex-1 items-center justify-center rounded-lg bg-white shadow-sm">
+          <div className="m-2 flex w-full max-w-sm flex-1 items-center justify-center rounded-lg border-2 bg-white shadow-md">
             <StripeContainer customerBillingData={billingFormData} notificationJWT={props.notificationJWT} />
           </div>
         </div>

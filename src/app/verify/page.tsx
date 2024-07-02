@@ -1,7 +1,10 @@
-"use server";
+import "server-only";
+import InternalErrorView from "@/components/view/ClientErrorViews/InternalErrorView";
+import LinkExpiredView from "@/components/view/ClientErrorViews/LinkExpiredView";
 import SetupVerificationForm from "@/components/view/SetupVerificationForm";
 import { getNotificationDataFromJWT } from "@/lib/service/NotificationHandler";
 import PrismaInstance from "@/lib/service/PrismaInstance";
+import Logger from "@/lib/utility/Logger";
 import { getErrorMessage } from "@/lib/utility/UtilityFunctions";
 import { redirect } from "next/navigation";
 
@@ -23,7 +26,12 @@ async function VerifyPage({ searchParams }: { searchParams?: { [key: string]: st
         />
       );
     } catch (e) {
-      return <div>{getErrorMessage(e)}</div>;
+      if (getErrorMessage(e) === "Token has expired" || getErrorMessage(e) === "Invalid token") {
+        return <LinkExpiredView />;
+      } else {
+        Logger.error({ message: "Error in VerifyPage", data: getErrorMessage(e) });
+      }
+      return <InternalErrorView />;
     }
   } else {
     redirect("/");

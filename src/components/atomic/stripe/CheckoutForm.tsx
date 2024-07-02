@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js";
 import { PaymentMethodCreateParams } from "@stripe/stripe-js";
+import { toast } from "react-toastify";
 
 const CheckoutForm = ({ billingDetails }: { billingDetails: PaymentMethodCreateParams.BillingDetails }) => {
   const stripe = useStripe();
@@ -23,11 +24,12 @@ const CheckoutForm = ({ billingDetails }: { billingDetails: PaymentMethodCreateP
         payment_method_data: {
           billing_details: billingDetails,
         },
-        return_url: `${window.location.origin}/success`,
+        return_url: `${window.location.origin}/payment-confirmation`,
       },
     });
 
     if (result.error) {
+      toast.error("Payment failed");
       setError(result.error.message || "An unexpected error occurred.");
       setLoading(false);
     }
@@ -43,7 +45,7 @@ const CheckoutForm = ({ billingDetails }: { billingDetails: PaymentMethodCreateP
       >
         {loading ? "Processing..." : "Pay"}
       </button>
-      {error && <div style={{ color: "red", marginTop: "20px" }}>{error}</div>}
+      {error && <div className="mt-5 text-center font-semibold text-red-500">{error}</div>}
     </form>
   );
 };

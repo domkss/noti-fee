@@ -27,7 +27,10 @@ const StripeContainer = (props: StripeContainerProps) => {
       body: JSON.stringify({ customerBillingData: props.customerBillingData }),
     })
       .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
+      .then((data: { clientSecret: string }) => {
+        setClientSecret(data.clientSecret);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const options: StripeElementsOptions = {
