@@ -5,53 +5,77 @@ services:
     image: redis:6.2-alpine
     restart: always
     expose:
-      - "6379"
-    command: redis-server --save 20 1 --loglevel warning --requirepass redisDeveloperPW
+      - "6380"
+    command: redis-server --port 6380 --save 20 1 --loglevel warning --requirepass redisDeveloperPW
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redisDeveloperPW", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - notifee_redis:/data
     networks:
       notifee-network:
         ipv4_address: 172.21.0.11
 
-
-
   notifee-postgresql:
-      image: postgres:latest
-      restart: always
-      expose:
-        - "6379"
-      ports:
-        - "5432:5432"
-      environment:
-        POSTGRES_DB: notifee-database
-        POSTGRES_USER: notifee
-        POSTGRES_PASSWORD: postgreDeveloperPW
-      volumes:
-        - postgresql_data:/var/lib/postgresql/data
-      networks:
-        notifee-network:
-          ipv4_address: 172.21.0.12
+    image: postgres:latest
+    restart: always
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB: notifee-database
+      POSTGRES_USER: notifee
+      POSTGRES_PASSWORD: postgreDeveloperPW
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      notifee-network:
+        ipv4_address: 172.21.0.12
+
   notifee-app:
     build:
       context: ../
-      dockerfile: docker/Dockerfile
-    image: notifee-app:notifee
+      dockerfile: docker/Notifee_Dockerfile
+      args:
+        - ENVKEY=${ENVKEY}
+    image: notifee-app:latest
     restart: always
     depends_on:
-      - notifee-redis
-    links:
-      - "notifee-redis:172.20.0.11"
+      notifee-postgresql:
+        condition: service_healthy
+      notifee-redis:
+        condition: service_healthy
     ports:
       - "3232:3000"
     networks:
       notifee-network:
         ipv4_address: 172.21.0.10
+
+  notifee-scheduler:
+    build:
+      context: ../tools/scheduler
+      dockerfile: docker/Scheduler_Dockerfile
+      args:
+        - ENVKEY=${ENVKEY}
+    image: notifee-scheduler:latest
+    restart: always
+    networks:
+      notifee-network:
+        ipv4_address: 172.21.0.13
+
 volumes:
   notifee_redis:
     driver: local
   postgresql_data:
-    driver: local 
-    
+    driver: local
+
 networks:
   notifee-network:
     driver: bridge

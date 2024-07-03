@@ -7,7 +7,7 @@ import "envkey";
 
 function startUpdateRequestingCron() {
   // Define the URL of your Next.js API endpoint
-  const apiUrl: string = "http://localhost:3000/api/update"; // Replace with your actual API endpoint
+  const apiUrl: string = "http://notifee-app:3000/api/update"; // Replace with your actual API endpoint
 
   // Schedule a job to run every 5 minutes
   cron.schedule("*/5 * * * *", async () => {
