@@ -2,16 +2,14 @@ version: "3.9"
 
 services:
   notifee-redis:
-    image: redis:6.2-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile-redis
+      args:
+        - ENVKEY=${ENVKEY}
     restart: always
     expose:
       - "6380"
-    command: redis-server --port 6380 --save 20 1 --loglevel warning --requirepass redisDeveloperPW
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "redisDeveloperPW", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     volumes:
       - notifee_redis:/data
     networks:
@@ -19,20 +17,14 @@ services:
         ipv4_address: 172.21.0.11
 
   notifee-postgresql:
-    image: postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile-postgresql
+      args:
+        - ENVKEY=${ENVKEY}
     restart: always
     expose:
       - "5432"
-    environment:
-      POSTGRES_DB: notifee-database
-      POSTGRES_USER: notifee
-      POSTGRES_PASSWORD: postgreDeveloperPW
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
     volumes:
       - postgresql_data:/var/lib/postgresql/data
     networks:
@@ -42,7 +34,7 @@ services:
   notifee-app:
     build:
       context: ../
-      dockerfile: docker/Notifee_Dockerfile
+      dockerfile: Dockerfile
       args:
         - ENVKEY=${ENVKEY}
     image: notifee-app:latest
@@ -61,7 +53,7 @@ services:
   notifee-scheduler:
     build:
       context: ../tools/scheduler
-      dockerfile: docker/Scheduler_Dockerfile
+      dockerfile: Dockerfile
       args:
         - ENVKEY=${ENVKEY}
     image: notifee-scheduler:latest

@@ -21,6 +21,11 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Init envkey variable
+ARG ENVKEY
+ENV ENVKEY $ENVKEY
+
 RUN npx prisma generate
 RUN npm run build
 
@@ -53,7 +58,6 @@ RUN npm install --only=production
 # Init envkey variable
 ARG ENVKEY
 ENV ENVKEY $ENVKEY
-
 
 # Use the nextjs user to run the application
 USER nextjs
