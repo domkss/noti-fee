@@ -31,6 +31,7 @@ model Notification {
   exchange       String
   currency       String
   network        String
+  networkName    String
   targetFee      Decimal
   targetCurrency String
 }

@@ -1,8 +1,7 @@
-// scheduler/scheduler.ts
-
 import cron from "node-cron";
 import axios from "axios";
 import { createHmac } from "crypto";
+import Logger from "./lib/Logger";
 import "envkey";
 
 function startUpdateRequestingCron() {
@@ -28,14 +27,17 @@ function startUpdateRequestingCron() {
         },
       )
       .then((response) => {
-        console.log(requestTime, ": Update request sent:", response.data);
+        Logger.info({ message: "Scheduler: Update request sent", data: response.data });
       })
       .catch((error) => {
-        console.error("Error sending the update request:", error.response ? error.response.data : error.message);
+        Logger.error({
+          message: "Scheduler: Error sending the update request",
+          error: error.response ? error.response.data : error.message,
+        });
       });
   });
 
-  console.log("Started: Scheduled update request job to run every 5 minutes.");
+  Logger.info({ message: "Started: Scheduled update request job to run every 5 minutes." });
 }
 
 // Start the update scheduler

@@ -119,6 +119,7 @@ const ActivateNotification: (req: NextRequest, token: string) => Promise<Respons
             exchange: decoded.exchange,
             currency: decoded.currency,
             network: decoded.network,
+            networkName: decoded.networkName,
             targetFee: decoded.targetFee,
             targetCurrency: decoded.targetCurrency,
           },

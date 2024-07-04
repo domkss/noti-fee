@@ -13,6 +13,7 @@ export const FeeNotificationConfigSchema = z.object({
   exchange: z.string(),
   currency: z.string(),
   network: z.string(),
+  networkName: z.string(),
   targetFee: z.number(),
   targetCurrency: z.string(),
 });

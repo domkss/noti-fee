@@ -90,10 +90,10 @@ export default function SetupVerificationForm(props: SetupVerificationFormProps)
                 <div className="flex flex-1 flex-row items-center p-1 ">
                   <div className="font-bold">Network:</div>
                   <div className="flex flex-row items-center">
-                    <div className="ml-2">{props.data.network}</div>
+                    <div className="ml-2">{props.data.networkName}</div>
                     <div className="ml-2 rounded-full bg-emerald-100 shadow-md">
-                      {getNetworkBaseName(props.data.network) ? (
-                        <NetworkIcon network={getNetworkBaseName(props.data.network)} size={30} variant="branded" />
+                      {getNetworkBaseName(props.data.networkName) ? (
+                        <NetworkIcon network={getNetworkBaseName(props.data.networkName)} size={30} variant="branded" />
                       ) : null}
                     </div>
                   </div>

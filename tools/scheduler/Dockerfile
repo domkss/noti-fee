@@ -7,6 +7,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
+ENV NODE_ENV production
+
 # Install dependencies
 RUN npm install
 

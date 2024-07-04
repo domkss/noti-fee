@@ -34,7 +34,8 @@ export default function NotificationSetupForm() {
     email: userEmail,
     exchange: selectedExchange,
     currency: selectedCurrency?.symbol,
-    network: selectedNetwork?.name,
+    network: selectedNetwork?.network,
+    networkName: selectedNetwork?.name,
     targetFee: Number.parseFloat(targetFee.stringValue.split(" ")[0]),
     targetCurrency: targetFee.stringValue.split(" ")[1],
   };

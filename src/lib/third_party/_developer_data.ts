@@ -16530,7 +16530,7 @@ export const BINANCE_DUMMY_COIN_DATA = [
         resetAddressStatus: false,
         addressRegex: "^(0x)[0-9A-Fa-f]{40}$",
         memoRegex: "",
-        withdrawFee: "12",
+        withdrawFee: "10",
         withdrawMin: "24",
         withdrawMax: "10000000000",
         minConfirm: 6,
