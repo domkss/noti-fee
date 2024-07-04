@@ -128,24 +128,24 @@ async function sendBinanceFeeNotifications() {
     const feeInUSD = networkFee.feeInUSD;
     const feeInCoin = networkFee.fee;
 
-    if (notification.targetCurrency === "USD" && feeInUSD < notification.targetFee.toNumber()) {
+    if (notification.targetCurrency === "USD" && feeInUSD <= notification.targetFee.toNumber()) {
       // Send notification for USD target fee
       console.log(
         "send notification fee in UDS is less than target fee:" +
           feeInUSD +
-          "<" +
+          "<=" +
           notification.targetFee.toNumber() +
           " " +
           notification.targetCurrency +
           " To:" +
           notification.userEmail,
       );
-    } else if (notification.targetCurrency !== "USD" && feeInCoin < notification.targetFee.toNumber()) {
+    } else if (notification.targetCurrency !== "USD" && feeInCoin <= notification.targetFee.toNumber()) {
       // Send notification for coin target fee
       console.log(
         "send notification fee in COIN is less than target fee:" +
           feeInCoin +
-          "<" +
+          "<=" +
           notification.targetFee.toNumber() +
           " " +
           notification.targetCurrency +
