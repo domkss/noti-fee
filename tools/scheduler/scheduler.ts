@@ -1,8 +1,8 @@
 import cron from "node-cron";
 import axios from "axios";
 import { createHmac } from "crypto";
-import Logger from "./lib/Logger";
 import "envkey";
+import Logger from "./lib/Logger";
 
 function startUpdateRequestingCron() {
   // Define the URL of your Next.js API endpoint

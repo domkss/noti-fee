@@ -150,7 +150,7 @@ async function sendFeeNotificationEmail(
 
   let currentFeeText;
   if (notification.targetCurrency === "USD" && feeInUSD <= notification.targetFee.toNumber()) {
-    currentFeeText = feeInUSD + " " + notification.targetCurrency;
+    currentFeeText = feeInUSD.toFixed(2) + " " + notification.targetCurrency;
   } else if (notification.targetCurrency !== "USD" && feeInCoin <= notification.targetFee.toNumber()) {
     currentFeeText = feeInCoin + " " + notification.targetCurrency;
   } else return; // Do not send notification if the fee is not less than or equal to the target fee

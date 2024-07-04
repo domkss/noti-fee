@@ -18,7 +18,6 @@ export default async function PaymentSuccessConfirmationPage({
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
       let paymentIntent = await stripe.paymentIntents.retrieve(searchParams?.payment_intent);
 
-      console.log(paymentIntent.status);
 
       if (paymentIntent?.status === "succeeded") {
         let prisma = await PrismaInstance.getInstance();
