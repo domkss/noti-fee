@@ -6,6 +6,10 @@ import CoinCapClient from "@/lib/third_party/CoinCapClient";
 import PrismaInstance from "@/lib/service/PrismaInstance";
 import Logger from "@/lib/utility/Logger";
 import { SelectableExchanges } from "@/lib/utility/ClientHelperFunctions";
+import Mailer from "@/lib/service/Mailer";
+import { FeeNotificationEmailData } from "@/lib/types/TransferTypes";
+import { NetworkFeeDetail } from "@/lib/types/TransferTypes";
+import { Notification, PrismaClient } from "@prisma/client";
 
 // Cron job hook
 export async function PATCH(req: NextRequest, res: NextResponse) {
@@ -50,108 +54,132 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
 }
 
 async function sendBinanceFeeNotifications() {
-  // Send notifications to users
-  const binanceClient = await BinanceClient.getInstance();
-  const prisma = await PrismaInstance.getInstance();
-  if (!binanceClient || !prisma) {
+  try {
+    // Send notifications to users
+    const binanceClient = await BinanceClient.getInstance();
+    const prisma = await PrismaInstance.getInstance();
+    if (!binanceClient || !prisma) {
+      Logger.error({
+        message: "Failed to SendBinanceFeeNotifications",
+        error: "Failed to get instances of BinanceClient or PrismaInstance",
+      });
+      return;
+    }
+
+    Logger.info({ message: "Sending Binance fee notifications" });
+
+    let withdrawalFees = binanceClient.getCachedWithdrawalFees();
+
+    // Get active Binance withdrawal notifications
+    const activeBinanceNotifications = await prisma.notification.findMany({
+      where: {
+        exchange: SelectableExchanges.Binance_Withdrawal.id,
+        sent: false,
+      },
+    });
+
+    // Create a map of currency to networks for active notifications
+    const activeNotificationCurrencyNetworksMap = activeBinanceNotifications.reduce(
+      (
+        acc: {
+          [currency: string]: string[];
+        },
+        notification,
+      ) => {
+        if (!acc[notification.currency]) {
+          acc[notification.currency] = [];
+        }
+        if (!acc[notification.currency].includes(notification.network))
+          acc[notification.currency].push(notification.network);
+
+        return acc;
+      },
+      {},
+    );
+
+    //Filter out the fee types that has no active notifications
+    withdrawalFees = withdrawalFees
+      .map((fee) => {
+        if (activeNotificationCurrencyNetworksMap[fee.symbol]) {
+          const networks = activeNotificationCurrencyNetworksMap[fee.symbol];
+          fee.networkFees = fee.networkFees.filter((networkFee) => networks.includes(networkFee.network));
+          if (fee.networkFees.length > 0) return fee;
+        }
+        return null;
+      })
+      .filter((fee): fee is NonNullable<typeof fee> => fee !== null);
+
+    for (const notification of activeBinanceNotifications) {
+      const currency = notification.currency;
+      const network = notification.network;
+      const fee = withdrawalFees.find((fee) => fee.symbol === currency);
+      if (!fee) {
+        Logger.error({
+          message: "Failed to SendBinanceFeeNotifications",
+          error: `No fee data found for ${currency}`,
+        });
+        continue;
+      }
+
+      const networkFee = fee.networkFees.find((networkFee) => networkFee.network === network);
+      if (!networkFee) {
+        Logger.error({
+          message: "Failed to SendBinanceFeeNotifications",
+          error: `No network fee data found for ${currency} and ${network}`,
+        });
+        continue;
+      }
+
+      await sendFeeNotificationEmail(prisma, networkFee, notification);
+    }
+  } catch (error) {
     Logger.error({
       message: "Failed to SendBinanceFeeNotifications",
-      error: "Failed to get instances of BinanceClient or PrismaInstance",
+      error: error,
     });
-    return;
   }
-  Logger.info({ message: "Sending Binance fee notifications..." });
+}
 
-  let withdrawalFees = binanceClient.getCachedWithdrawalFees();
+async function sendFeeNotificationEmail(
+  prisma: PrismaClient,
+  networkFee: NetworkFeeDetail,
+  notification: Notification,
+) {
+  const feeInUSD = networkFee.feeInUSD;
+  const feeInCoin = networkFee.fee;
 
-  // Get active Binance withdrawal notifications
-  const activeBinanceNotifications = await prisma.notification.findMany({
-    where: {
-      exchange: SelectableExchanges.Binance_Withdrawal.id,
-    },
-  });
+  let currentFeeText;
+  if (notification.targetCurrency === "USD" && feeInUSD <= notification.targetFee.toNumber()) {
+    currentFeeText = feeInUSD + " " + notification.targetCurrency;
+  } else if (notification.targetCurrency !== "USD" && feeInCoin <= notification.targetFee.toNumber()) {
+    currentFeeText = feeInCoin + " " + notification.targetCurrency;
+  } else return; // Do not send notification if the fee is not less than or equal to the target fee
 
-  // Create a map of currency to networks for active notifications
-  const activeNotificationCurrencyNetworksMap = activeBinanceNotifications.reduce(
-    (
-      acc: {
-        [currency: string]: string[];
-      },
-      notification,
-    ) => {
-      if (!acc[notification.currency]) {
-        acc[notification.currency] = [];
-      }
-      if (!acc[notification.currency].includes(notification.network))
-        acc[notification.currency].push(notification.network);
+  const targetFeeText = notification.targetFee.toNumber() + " " + notification.targetCurrency;
 
-      return acc;
-    },
-    {},
-  );
+  const notificationData: FeeNotificationEmailData = {
+    exchange: notification.exchange,
+    currency: notification.currency,
+    network: notification.networkName,
+    targetFee: targetFeeText,
+    currentFee: currentFeeText,
+    email: notification.userEmail,
+  };
 
-  console.log("activeNotificationCurrencyNetworksMap:", activeNotificationCurrencyNetworksMap);
+  const result = await Mailer.sendFeeNotificationEmail(notificationData);
 
-  //Filter out the fee types that has no active notifications
-  withdrawalFees = withdrawalFees
-    .map((fee) => {
-      if (activeNotificationCurrencyNetworksMap[fee.symbol]) {
-        const networks = activeNotificationCurrencyNetworksMap[fee.symbol];
-        fee.networkFees = fee.networkFees.filter((networkFee) => networks.includes(networkFee.network));
-        if (fee.networkFees.length > 0) return fee;
-      }
-      return null;
-    })
-    .filter((fee): fee is NonNullable<typeof fee> => fee !== null);
-
-  for (const notification of activeBinanceNotifications) {
-    const currency = notification.currency;
-    const network = notification.network;
-    const fee = withdrawalFees.find((fee) => fee.symbol === currency);
-    if (!fee) {
-      Logger.error({
-        message: "Failed to SendBinanceFeeNotifications",
-        error: `No fee data found for ${currency}`,
-      });
-      continue;
-    }
-
-    const networkFee = fee.networkFees.find((networkFee) => networkFee.network === network);
-    if (!networkFee) {
-      Logger.error({
-        message: "Failed to SendBinanceFeeNotifications",
-        error: `No network fee data found for ${currency} and ${network}`,
-      });
-      continue;
-    }
-
-    const feeInUSD = networkFee.feeInUSD;
-    const feeInCoin = networkFee.fee;
-
-    if (notification.targetCurrency === "USD" && feeInUSD <= notification.targetFee.toNumber()) {
-      // Send notification for USD target fee
-      console.log(
-        "send notification fee in UDS is less than target fee:" +
-          feeInUSD +
-          "<=" +
-          notification.targetFee.toNumber() +
-          " " +
-          notification.targetCurrency +
-          " To:" +
-          notification.userEmail,
-      );
-    } else if (notification.targetCurrency !== "USD" && feeInCoin <= notification.targetFee.toNumber()) {
-      // Send notification for coin target fee
-      console.log(
-        "send notification fee in COIN is less than target fee:" +
-          feeInCoin +
-          "<=" +
-          notification.targetFee.toNumber() +
-          " " +
-          notification.targetCurrency +
-          " To:" +
-          notification.userEmail,
-      );
-    }
-  }
+  if (result) {
+    await prisma.notification.update({
+      where: { id: notification.id },
+      data: { sent: true },
+    });
+    Logger.info({
+      message: `Sent notification for target fee: ${targetFeeText} <= ${targetFeeText}`,
+      notification: notification,
+    });
+  } else
+    Logger.error({
+      message: `Failed to send notification for USD target fee: ${feeInUSD} <= ${notification.targetFee.toNumber()} USD`,
+      notification: notification,
+    });
 }

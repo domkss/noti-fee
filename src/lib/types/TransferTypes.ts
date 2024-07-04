@@ -30,3 +30,12 @@ export interface ResponseCurrentFees {
 export type FeeNotificationConfig = z.infer<typeof FeeNotificationConfigSchema>;
 
 export type CustomerBillingData = z.infer<typeof CustomerBillingSchema>;
+
+export interface FeeNotificationEmailData {
+  exchange: string;
+  currency: string;
+  network: string;
+  targetFee: string;
+  currentFee: string;
+  email: string;
+}
