@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import BinanceClient from "@/lib/third_party/BinanceClient";
 import { CurrencyDetail, ResponseCurrentFees } from "@/lib/types/TransferTypes";
+import Logger from "@/lib/utility/Logger";
 
-export async function GET(req: NextRequest, res: NextResponse) {
-  let binanceClient = await BinanceClient.getInstance();
+export async function GET(req: NextRequest) {
+  const binanceClient = await BinanceClient.getInstance();
 
   let currentFees: CurrencyDetail[] = [];
   if (binanceClient) currentFees = binanceClient.getCachedWithdrawalFees();
@@ -12,5 +13,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
     currentFees: currentFees,
   };
 
-  return Response.json(response);
+  Logger.info({
+    message: "API: Bincane endpoint revalidated.",
+  });
+
+  return NextResponse.json(response);
 }
+
+export const dynamic = "auto";
+export const revalidate = 300;

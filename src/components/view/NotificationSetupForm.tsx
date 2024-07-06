@@ -266,3 +266,5 @@ export default function NotificationSetupForm() {
     </Fieldset>
   );
 }
+
+export const revalidate = 300;

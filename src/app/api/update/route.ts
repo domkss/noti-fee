@@ -40,11 +40,12 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
   }
 
   // Update data from third-party APIs
-  await BinanceClient.getInstance().then((client) => {
-    if (client) client.refreshData();
+  await CoinCapClient.getInstance().then(async (client) => {
+    if (client) await client.refreshData();
   });
-  await CoinCapClient.getInstance().then((client) => {
-    if (client) client.refreshData();
+
+  await BinanceClient.getInstance().then(async (client) => {
+    if (client) await client.refreshData();
   });
 
   // Send Binance fee notifications

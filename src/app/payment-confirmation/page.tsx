@@ -18,7 +18,6 @@ export default async function PaymentSuccessConfirmationPage({
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
       let paymentIntent = await stripe.paymentIntents.retrieve(searchParams?.payment_intent);
 
-
       if (paymentIntent?.status === "succeeded") {
         let prisma = await PrismaInstance.getInstance();
         let payment = await prisma.payment.findUnique({
@@ -65,3 +64,5 @@ export default async function PaymentSuccessConfirmationPage({
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";
