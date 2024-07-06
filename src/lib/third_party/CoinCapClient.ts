@@ -40,6 +40,7 @@ class CoinCapClient {
       return;
     }
     this.processRawData();
+    Logger.info({ message: "CoinCap Client: Data has been refreshed." });
   }
 
   private async getDataFromCoinCap(): Promise<boolean> {
