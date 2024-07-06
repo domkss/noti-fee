@@ -40,7 +40,7 @@ WORKDIR /app
 ENV NODE_ENV production
 
 # Install additional dependencies
-RUN RUN apk --no-cache add curl bash && \
+RUN apk --no-cache add curl bash && \
     VERSION=$(curl https://envkey-releases.s3.amazonaws.com/latest/envkeysource-version.txt) && \
     curl -s https://envkey-releases.s3.amazonaws.com/envkeysource/release_artifacts/$VERSION/install.sh | bash && \
     addgroup --system --gid 1001 nodejs && \
