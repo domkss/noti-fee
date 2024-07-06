@@ -165,6 +165,11 @@ class BinanceClient {
     //Get Data from Binance API
     Logger.info({ message: "Getting currency data from Binance API" });
 
+    if (!process.env.BINANCE_API_KEY || !process.env.BINANCE_SECRET_KEY) {
+      Logger.error({ message: "Binance API key or secret key is missing" });
+      return false;
+    }
+
     // Get the server time
     const timestamp = await this.getBinanceServerTime();
     if (!timestamp) {
@@ -174,7 +179,7 @@ class BinanceClient {
     const REQUEST_URL = "https://api.binance.com/sapi/v1/capital/config/getall";
     // Headers with API key
     const headers = {
-      "X-MBX-APIKEY": process.env.BINANCE_API_KEY || "invalid",
+      "X-MBX-APIKEY": process.env.BINANCE_API_KEY,
     };
     // Set recvWindow
     const recvWindow = 5000; // 5000 milliseconds or 5 seconds
@@ -183,10 +188,7 @@ class BinanceClient {
     let queryString = `timestamp=${timestamp}&recvWindow=${recvWindow}`;
 
     // Generate the signature
-    const signature = crypto
-      .createHmac("sha256", process.env.BINANCE_SECRET_KEY || "invalid")
-      .update(queryString)
-      .digest("hex");
+    const signature = crypto.createHmac("sha256", process.env.BINANCE_SECRET_KEY).update(queryString).digest("hex");
 
     // Add the signature to the query string
     queryString += `&signature=${signature}`;
@@ -203,7 +205,7 @@ class BinanceClient {
       Logger.error({
         message: "Failed to get currency data from Binance API",
         status: response.status,
-        statusText: response.statusText,
+        data: await response.json(),
       });
       return false;
     }

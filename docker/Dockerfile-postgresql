@@ -17,4 +17,4 @@ ENTRYPOINT ["/bin/bash", "-c", "\
 
 # Set up health check
 HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
-  CMD pg_isready
+  CMD eval $(envkey-source) && pg_isready -U $POSTGRES_USER -d $POSTGRES_DB

@@ -16,6 +16,10 @@ RUN if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
     else echo "Lockfile not found." && exit 1; \
     fi
 
+RUN apk --no-cache add curl bash && \
+    VERSION=$(curl https://envkey-releases.s3.amazonaws.com/latest/envkeysource-version.txt) && \
+    curl -s https://envkey-releases.s3.amazonaws.com/envkeysource/release_artifacts/$VERSION/install.sh
+
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -26,8 +30,11 @@ COPY . .
 ARG ENVKEY
 ENV ENVKEY $ENVKEY
 
+
+
+# Build the application
 RUN npx prisma generate
-RUN npm run build
+RUN envkey-source -- npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -36,10 +43,7 @@ WORKDIR /app
 ENV NODE_ENV production
 
 # Install additional dependencies
-RUN apk --no-cache add curl bash && \
-    VERSION=$(curl https://envkey-releases.s3.amazonaws.com/latest/envkeysource-version.txt) && \
-    curl -s https://envkey-releases.s3.amazonaws.com/envkeysource/release_artifacts/$VERSION/install.sh | bash && \
-    addgroup --system --gid 1001 nodejs && \
+RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \
     mkdir .next && \
     chown nextjs:nodejs .next
