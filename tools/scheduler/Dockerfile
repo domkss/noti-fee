@@ -7,22 +7,22 @@ WORKDIR /app
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-ENV NODE_ENV production
-
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy Dependency files
 COPY . .
-
 
 # Compile TypeScript code
 RUN npx tsc
 
+
+
+ENV NODE_ENV production
 # Init envkey variable
 ARG ENVKEY
 ENV ENVKEY $ENVKEY
 
-# Command to run the application
 
+# Command to run the application
 CMD node dist/scheduler.js
