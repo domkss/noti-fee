@@ -1,0 +1,2 @@
+# Cron tab content to copy the dump file
+9 5 * * * cp /var/lib/docker/volumes/notifee_redis_data/_data/dump.rdb /etc/backup/notifee-app/redis/dump.rdb
