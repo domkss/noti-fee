@@ -13,7 +13,7 @@ services:
     ports:
       - "6380:6380"
     volumes:
-      - notifee_redis:/data
+      - redis_data:/data
     networks:
       notifee-network:
         ipv4_address: 172.21.0.11
@@ -35,7 +35,7 @@ services:
       notifee-network:
         ipv4_address: 172.21.0.12
 volumes:
-  notifee_redis:
+  redis_data:
     driver: local
   postgresql_data:
     driver: local
