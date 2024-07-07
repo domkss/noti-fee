@@ -13,7 +13,7 @@ ENV ENVKEY $ENVKEY
 # Define an entrypoint to dynamically set PostgreSQL environment variables
 ENTRYPOINT ["/bin/bash", "-c", "\
   eval $(envkey-source) && \
-  exec docker-entrypoint.sh postgres"]
+  docker-entrypoint.sh postgres"]
 
 # Set up health check
 HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
