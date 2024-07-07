@@ -25,7 +25,7 @@ COPY . .
 
 # Init envkey variable
 ARG ENVKEY
-ENV ENVKEY $ENVKEY
+ENV ENVKEY=$ENVKEY
 
 
 
@@ -61,7 +61,7 @@ RUN npm install --only=production
 
 # Init envkey variable
 ARG ENVKEY
-ENV ENVKEY $ENVKEY
+ENV ENVKEY=$ENVKEY
 
 # Use the nextjs user to run the application
 USER nextjs

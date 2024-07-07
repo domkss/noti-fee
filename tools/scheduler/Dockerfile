@@ -21,7 +21,7 @@ RUN npx tsc
 ENV NODE_ENV production
 # Init envkey variable
 ARG ENVKEY
-ENV ENVKEY $ENVKEY
+ENV ENVKEY=$ENVKEY
 
 
 # Command to run the application

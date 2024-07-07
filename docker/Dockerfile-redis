@@ -7,7 +7,7 @@ RUN apk --no-cache add curl bash && \
     curl -s https://envkey-releases.s3.amazonaws.com/envkeysource/release_artifacts/$VERSION/install.sh | bash
 
 ARG ENVKEY
-ENV ENVKEY $ENVKEY
+ENV ENVKEY=$ENVKEY
 
 # Set the default command
 ENTRYPOINT ["/bin/sh", "-c", "eval $(envkey-source) && redis-server --port 6380 --save 20 1 --loglevel warning --requirepass $REDIS_PW"]
