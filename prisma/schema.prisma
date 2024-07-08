@@ -60,6 +60,7 @@ model Payment {
 model HistoricalFeeData {
   id   Int      @id @default(autoincrement())
   date DateTime @default(now()) @db.Timestamp(6)
+  source        String
   currency      String
   network       String
   fee           Float

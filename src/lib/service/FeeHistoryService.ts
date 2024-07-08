@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import PrismaInstance from "./PrismaInstance";
 import BinanceClient from "../third_party/BinanceClient";
 import Logger from "../utility/Logger";
+import { SelectableExchanges } from "@/lib/utility/ClientHelperFunctions";
 
 class FeeHistoryService {
   private static instance: FeeHistoryService;
@@ -32,6 +33,7 @@ class FeeHistoryService {
             network: fee.network,
             fee: fee.fee,
             feeInUsd: fee.feeInUSD,
+            source: SelectableExchanges.Binance_Withdrawal.id,
           },
         });
       }
