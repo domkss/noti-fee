@@ -110,7 +110,7 @@ export default function NotificationSetupForm() {
   };
 
   return (
-    <Fieldset className="min-w-[35%] space-y-6 border-r bg-slate-50/60 p-10 shadow-sm max-md:min-w-full max-sm:pt-2 md:px-16">
+    <Fieldset className="min-w-[35%] space-y-6 border-r bg-white p-10 shadow-sm max-md:min-w-full max-sm:pt-2 md:px-16">
       <Legend className="flex flex-col items-center md:flex-row">
         <Image className="mr-3" src="/icons/favicon.svg" alt="logo" width={80} height={80} />
         <div className="text-center text-base/7 font-semibold text-black">

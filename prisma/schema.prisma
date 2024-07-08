@@ -56,4 +56,13 @@ model Payment {
   userEmail         String?
   redirect_JWT      String
 }     
-    
+
+model HistoricalFeeData {
+  id   Int      @id @default(autoincrement())
+  date DateTime @default(now()) @db.Timestamp(6)
+  currency      String
+  network       String
+  fee           Float
+  feeInUsd      Float
+  @@unique([date, currency, network])
+}
