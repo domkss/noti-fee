@@ -32,6 +32,12 @@ export const debounce = (fn: Function, ms = 300) => {
 
 export function createUUID8(Object: any) {
   if (!Object) throw new Error("Object is required to create a UUID v8");
+
+  //Add the current day to it, this is required to prevent same type spam,
+  //but removes the limitation to create the same notification multiple times in the future
+  const currentDate = new Date().toISOString().split("T")[0];
+  Object.date = currentDate;
+
   const content = JSON.stringify(Object);
 
   // Create a hash of the JWT to use in the UUID v8
