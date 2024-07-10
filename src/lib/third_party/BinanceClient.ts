@@ -145,7 +145,7 @@ class BinanceClient {
       if (coin["coin"] === currency_symbol) {
         for (const network of coin["networkList"]) {
           if (network["network"] === network_name) {
-            return network["withdrawFee"] as number;
+            return parseFloat(network["withdrawFee"]);
           }
         }
       }
