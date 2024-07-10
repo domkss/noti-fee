@@ -27,6 +27,31 @@ class FeeHistoryService {
       const networkFees = currentFees.map((fee) => fee.networkFees).flat();
 
       for (const fee of networkFees) {
+        if (typeof fee.fee === "string") {
+          const parsedValue = parseFloat(fee.fee);
+          //Unable to convert value, continue
+          if (isNaN(parsedValue)) {
+            Logger.error({ message: `Unable to parse float from fee ${fee.fee}`, fee: fee });
+            continue;
+          }
+
+          fee.fee = parsedValue;
+        }
+
+        if (typeof fee.feeInUSD === "string") {
+          const parsedValue = parseFloat(fee.feeInUSD);
+          //Unable to convert value, continue
+          if (isNaN(parsedValue)) {
+            Logger.error({ message: `Unable to parse float from fee ${fee.feeInUSD}`, fee: fee });
+            continue;
+          }
+
+          fee.feeInUSD = parsedValue;
+        }
+
+        // Ensure the value is a number
+        if (typeof fee.fee !== "number" || typeof fee.feeInUSD !== "number") continue;
+
         await FeeHistoryService.prisma.historicalFeeData.create({
           data: {
             currency: fee.coin,
