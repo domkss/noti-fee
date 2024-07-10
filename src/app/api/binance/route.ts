@@ -20,5 +20,4 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(response);
 }
 
-export const dynamic = "auto";
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
