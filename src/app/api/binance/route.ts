@@ -13,10 +13,6 @@ export async function GET(req: NextRequest) {
     currentFees: currentFees,
   };
 
-  Logger.info({
-    message: "API: Bincane endpoint revalidated.",
-  });
-
   return NextResponse.json(response);
 }
 
