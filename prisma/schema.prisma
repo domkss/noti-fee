@@ -57,10 +57,14 @@ model Payment {
   redirect_JWT      String
 }     
 
+enum SourceType {
+  binance_withdrawal
+}
+
 model HistoricalFeeData {
   id   Int      @id @default(autoincrement())
   date DateTime @default(now()) @db.Timestamp(6)
-  source        String
+  source        SourceType
   currency      String
   network       String
   fee           Float
