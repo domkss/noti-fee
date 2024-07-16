@@ -9,7 +9,7 @@ function startUpdateRequestingCron() {
   const apiUrl: string = "http://notifee-app:3000/api/update"; // Replace with your actual API endpoint
 
   // Schedule a job to run every 5 minutes
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("*/10 * * * *", async () => {
     if (!process.env.UPDATE_ROUTE_SECRET) throw new Error("UPDATE_ROUTE_SECRET is not set");
 
     const requestTime = Date.now().toString();
@@ -37,7 +37,7 @@ function startUpdateRequestingCron() {
       });
   });
 
-  Logger.info({ message: "Started: Scheduled update request job to run every 5 minutes." });
+  Logger.info({ message: "Started: Scheduled update request job to run every 10 minutes." });
 }
 
 // Start the update scheduler
