@@ -32,6 +32,7 @@ export const CustomerBillingSchema = z.object({
 
 export const HistoricalFeeResponseSchema = z
   .object({
+    pair: z.string(),
     middleOfTheWeek: z.string(),
     averageFeeInUsd: z.number(),
   })

@@ -29,8 +29,30 @@ export default function HistoricalFeeChartView() {
 
     const responseBody = await response.json();
 
-    const data = HistoricalFeeResponseSchema.parse(responseBody);
-    setFeeData(data);
+    const dataBTC = HistoricalFeeResponseSchema.parse(responseBody.BTC);
+    const dataETH = HistoricalFeeResponseSchema.parse(responseBody.ETH);
+
+    const randomNumber = Math.random();
+
+    let randomChoice = 0;
+    if (randomNumber < 0.75) {
+      randomChoice = 1;
+    } else {
+      randomChoice = 2;
+    }
+
+    switch (randomChoice) {
+      case 1:
+        setFeeData(dataBTC);
+        break;
+      case 2:
+        setFeeData(dataETH);
+        break;
+      default:
+        setFeeData(dataBTC);
+        break;
+    }
+
     setReadyToDisplay(true);
   }
 
@@ -43,10 +65,10 @@ export default function HistoricalFeeChartView() {
     labels: feeData?.map((item) => item.middleOfTheWeek),
     datasets: [
       {
-        label: "Binance Average Withdraw Fee BTC/BTC",
+        label: "Binance Average Withdraw Fee " + feeData?.at(0)?.pair,
         data: feeData?.map((item) => item.averageFeeInUsd),
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(245, 97, 39, 0.5)",
+        borderColor: "rgba(245, 97, 39, 0.8)",
         borderWidth: 1,
       },
     ],
@@ -57,6 +79,9 @@ export default function HistoricalFeeChartView() {
     plugins: {
       legend: {
         position: "top",
+        onClick: function (e, legendItem) {
+          // Do nothing
+        },
       },
       title: {
         display: true,

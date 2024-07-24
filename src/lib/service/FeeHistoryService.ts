@@ -104,6 +104,7 @@ class FeeHistoryService {
 
       // Add the weekly average to the array
       weeklyAverages.push({
+        pair: currency + "/" + network,
         middleOfTheWeek: middleOfTheWeekDateString,
         averageFeeInUsd: weeklyAverage,
       });
