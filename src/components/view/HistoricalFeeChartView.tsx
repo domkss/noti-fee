@@ -77,6 +77,22 @@ export default function HistoricalFeeChartView() {
   const options: ChartOptions<"bar"> = {
     responsive: true,
     plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            let label = tooltipItem.dataset.label || "";
+            if (label) {
+              label += ": ";
+            }
+            if (tooltipItem.raw !== undefined) {
+              label += new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+                tooltipItem.raw as number,
+              );
+            }
+            return label;
+          },
+        },
+      },
       legend: {
         position: "top",
         onClick: function (e, legendItem) {
@@ -93,7 +109,7 @@ export default function HistoricalFeeChartView() {
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return "$" + value;
+            return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value as number);
           },
         },
       },
