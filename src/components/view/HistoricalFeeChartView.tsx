@@ -35,7 +35,7 @@ export default function HistoricalFeeChartView() {
     const randomNumber = Math.random();
 
     let randomChoice = 0;
-    if (randomNumber < 0.75) {
+    if (randomNumber < 0.65) {
       randomChoice = 1;
     } else {
       randomChoice = 2;
@@ -67,8 +67,8 @@ export default function HistoricalFeeChartView() {
       {
         label: "Binance Average Withdraw Fee " + feeData?.at(0)?.pair,
         data: feeData?.map((item) => item.averageFeeInUsd),
-        backgroundColor: "rgba(245, 97, 39, 0.5)",
-        borderColor: "rgba(245, 97, 39, 0.8)",
+        backgroundColor: feeData?.at(0)?.pair.includes("BTC") ? "rgba(245, 97, 39, 0.5)" : "rgba(75, 192, 192, 0.2)",
+        borderColor: feeData?.at(0)?.pair.includes("BTC") ? "rgba(245, 97, 39, 0.8)" : "rgba(75, 192, 192, 0.8)",
         borderWidth: 1,
       },
     ],
