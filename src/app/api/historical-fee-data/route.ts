@@ -7,7 +7,6 @@ export async function GET(req: NextRequest) {
   const avarageFeeBTC = await feeServiceInstance.getLast10WeeklyAverages("BTC", "BTC");
   const avarageFeeETH = await feeServiceInstance.getLast10WeeklyAverages("ETH", "ETH");
 
-  console.log("Revalidating");
   return Response.json({ BTC: avarageFeeBTC, ETH: avarageFeeETH });
 }
 
