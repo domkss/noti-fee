@@ -43,7 +43,7 @@ export default function HistoricalFeeChartView() {
     labels: feeData?.map((item) => item.middleOfTheWeek),
     datasets: [
       {
-        label: "Binance Withdraw BTC/BTC",
+        label: "Binance Average Withdraw Fee BTC/BTC",
         data: feeData?.map((item) => item.averageFeeInUsd),
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         borderColor: "rgba(75, 192, 192, 1)",
@@ -60,7 +60,7 @@ export default function HistoricalFeeChartView() {
       },
       title: {
         display: true,
-        text: "Historical Fee Data",
+        text: "Historical Data",
       },
     },
     scales: {
