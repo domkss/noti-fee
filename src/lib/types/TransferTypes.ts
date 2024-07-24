@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FeeNotificationConfigSchema, CustomerBillingSchema } from "./ZodSchemas";
+import { FeeNotificationConfigSchema, CustomerBillingSchema, HistoricalFeeResponseSchema } from "./ZodSchemas";
 
 export interface CurrencyDetail {
   symbol: string;
@@ -39,3 +39,5 @@ export interface FeeNotificationEmailData {
   currentFee: string;
   email: string;
 }
+
+export type HistoricalFeeDataResponse = z.infer<typeof HistoricalFeeResponseSchema>;

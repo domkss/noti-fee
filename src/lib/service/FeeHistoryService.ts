@@ -3,6 +3,8 @@ import PrismaInstance from "./PrismaInstance";
 import BinanceClient from "../third_party/BinanceClient";
 import Logger from "../utility/Logger";
 import { SelectableExchanges } from "@/lib/utility/ClientHelperFunctions";
+import { subWeeks, startOfWeek, endOfWeek, addDays, format } from "date-fns";
+import { HistoricalFeeDataResponse } from "../types/TransferTypes";
 
 class FeeHistoryService {
   private static instance: FeeHistoryService;
@@ -64,6 +66,50 @@ class FeeHistoryService {
       }
       Logger.info({ message: "Save Current Fees to the historical data base", exchange: "Binance" });
     }
+  }
+
+  public async getLast10WeeklyAverages(currency: string, network: string): Promise<HistoricalFeeDataResponse> {
+    const today = new Date();
+
+    // Create an array to hold the weekly averages
+    const weeklyAverages = [];
+
+    // Loop for the last 10 weeks
+    for (let i = 10; i > 0; i--) {
+      // Calculate the start and end dates for each week
+      const startDate = startOfWeek(subWeeks(today, i));
+      const endDate = endOfWeek(subWeeks(today, i));
+
+      // Fetch the feeInUsd values for the given week
+      const fees = await FeeHistoryService.prisma.historicalFeeData.findMany({
+        where: {
+          date: {
+            gte: startDate,
+            lte: endDate,
+          },
+          currency: currency,
+          network: network,
+        },
+        select: {
+          feeInUsd: true,
+        },
+      });
+
+      // Calculate the weekly average
+      const weeklySum = fees.reduce((sum, record) => sum + record.feeInUsd, 0);
+      const weeklyAverage = fees.length ? weeklySum / fees.length : 0;
+
+      //Get Midle of the week
+      const middleOfTheWeekDateString = format(addDays(startDate, 3), "MMM/dd");
+
+      // Add the weekly average to the array
+      weeklyAverages.push({
+        middleOfTheWeek: middleOfTheWeekDateString,
+        averageFeeInUsd: weeklyAverage,
+      });
+    }
+
+    return weeklyAverages;
   }
 }
 

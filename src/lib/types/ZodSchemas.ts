@@ -29,3 +29,10 @@ export const CustomerBillingSchema = z.object({
   postalCode: z.string().min(1),
   country: z.string().min(1),
 });
+
+export const HistoricalFeeResponseSchema = z
+  .object({
+    middleOfTheWeek: z.string(),
+    averageFeeInUsd: z.number(),
+  })
+  .array();

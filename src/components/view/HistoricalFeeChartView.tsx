@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,17 +10,41 @@ import {
   Legend,
   ChartOptions,
 } from "chart.js";
+import { StatusCodes as HTTPStatusCodes } from "http-status-codes";
+import { HistoricalFeeResponseSchema } from "@/lib/types/ZodSchemas";
+import { HistoricalFeeDataResponse } from "@/lib/types/TransferTypes";
 
 // Register Chart.js modules
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const HistoricalFeeChartView = () => {
-  const data = {
-    labels: ["January", "February", "March", "April", "May", "June"],
+export default function HistoricalFeeChartView() {
+  const [readyToDisplay, setReadyToDisplay] = useState<boolean>(false);
+  const [feeData, setFeeData] = useState<HistoricalFeeDataResponse | null>(null);
+
+  async function getHistoricalFeeData() {
+    const response = await fetch("/api/historical-fee-data");
+    if (!response || response.status !== HTTPStatusCodes.OK) {
+      return;
+    }
+
+    const responseBody = await response.json();
+
+    const data = HistoricalFeeResponseSchema.parse(responseBody);
+    setFeeData(data);
+    setReadyToDisplay(true);
+  }
+
+  useEffect(() => {
+    getHistoricalFeeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const chartData = {
+    labels: feeData?.map((item) => item.middleOfTheWeek),
     datasets: [
       {
         label: "Binance Withdraw BTC/BTC",
-        data: [65, 59, 80, 81, 56, 55],
+        data: feeData?.map((item) => item.averageFeeInUsd),
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -51,11 +75,11 @@ const HistoricalFeeChartView = () => {
     },
   };
 
+  if (!readyToDisplay) return null;
+
   return (
     <div className="flex max-h-[500px] w-full justify-center overflow-hidden">
-      <Bar data={data} options={options} width={700} height={500} />
+      <Bar data={chartData} options={options} width={700} height={500} />
     </div>
   );
-};
-
-export default HistoricalFeeChartView;
+}
