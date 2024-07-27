@@ -48,14 +48,6 @@ class BinanceClient {
 
     await this.calculateWithdrawalFees();
 
-    //Debugstring
-    console.log(
-      JSON.stringify({
-        calculateWithdrawalFees: this.calculatedWithdrawalFees.filter((item) => item.symbol === "ETH"),
-        rawCurrencyDataFromBinance: this.rawCurrencyDataFromBinance,
-      }),
-    );
-
     Logger.info({ message: "Binance Client: Data refreshed." });
   }
 
