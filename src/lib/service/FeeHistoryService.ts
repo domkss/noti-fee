@@ -5,6 +5,7 @@ import Logger from "../utility/Logger";
 import { SelectableExchanges } from "@/lib/utility/ClientHelperFunctions";
 import { subWeeks, startOfWeek, endOfWeek, addDays, format } from "date-fns";
 import { HistoricalFeeDataResponse } from "../types/TransferTypes";
+import { CurrencyDetail } from "../types/TransferTypes";
 
 class FeeHistoryService {
   private static instance: FeeHistoryService;
@@ -24,7 +25,9 @@ class FeeHistoryService {
   public async SaveFees() {
     const binanceClient = await BinanceClient.getInstance();
     if (binanceClient) {
-      const currentFees = binanceClient?.getCachedWithdrawalFees();
+      const currentFees: CurrencyDetail[] = structuredClone(
+        binanceClient?.getCachedWithdrawalFees(),
+      ) as CurrencyDetail[];
 
       const networkFees = currentFees.map((fee) => fee.networkFees).flat();
 

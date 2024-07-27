@@ -9,6 +9,7 @@ import { FeeNotificationEmailData } from "@/lib/types/TransferTypes";
 import { NetworkFeeDetail } from "@/lib/types/TransferTypes";
 import { Notification, PrismaClient } from "@prisma/client";
 import BinanceClient from "../third_party/BinanceClient";
+import { CurrencyDetail } from "@/lib/types/TransferTypes";
 
 export const getNotificationDataFromJWT = (token: string): Promise<FeeNotificationConfig> => {
   return new Promise((resolve, reject) => {
@@ -46,7 +47,9 @@ export const sendBinanceFeeNotifications = async () => {
 
     Logger.info({ message: "Sending Binance fee notifications" });
 
-    let withdrawalFees = binanceClient.getCachedWithdrawalFees();
+    const withdrawalFees: CurrencyDetail[] = structuredClone(
+      binanceClient.getCachedWithdrawalFees(),
+    ) as CurrencyDetail[];
 
     // Get active Binance withdrawal notifications
     const activeBinanceNotifications = await prisma.notification.findMany({
@@ -76,7 +79,7 @@ export const sendBinanceFeeNotifications = async () => {
     );
 
     //Filter out the fee types that has no active notifications
-    withdrawalFees = withdrawalFees
+    const withdrawalFeesWithActiveNotification = withdrawalFees
       .map((fee) => {
         if (activeNotificationCurrencyNetworksMap[fee.symbol]) {
           const networks = activeNotificationCurrencyNetworksMap[fee.symbol];
@@ -90,7 +93,7 @@ export const sendBinanceFeeNotifications = async () => {
     for (const notification of activeBinanceNotifications) {
       const currency = notification.currency;
       const network = notification.network;
-      const fee = withdrawalFees.find((fee) => fee.symbol === currency);
+      const fee = withdrawalFeesWithActiveNotification.find((fee) => fee.symbol === currency);
       if (!fee) {
         Logger.error({
           message: "Failed to SendBinanceFeeNotifications",

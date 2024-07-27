@@ -4,7 +4,7 @@ import { CurrencyDetail } from "@/lib/types/TransferTypes";
 import CoinCapClient from "./CoinCapClient";
 import Logger from "../utility/Logger";
 import crypto from "crypto";
-import { getErrorMessage } from "../utility/UtilityFunctions";
+import { deepFreeze, getErrorMessage } from "../utility/UtilityFunctions";
 
 class BinanceClient {
   private static instance: BinanceClient;
@@ -51,8 +51,8 @@ class BinanceClient {
     Logger.info({ message: "Binance Client: Data refreshed." });
   }
 
-  public getCachedWithdrawalFees(): CurrencyDetail[] {
-    return this.calculatedWithdrawalFees;
+  public getCachedWithdrawalFees(): ReadonlyArray<CurrencyDetail> {
+    return deepFreeze(this.calculatedWithdrawalFees);
   }
 
   public getLastDataUpdateTimeStamp(): number {

@@ -43,29 +43,11 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
 
   const binanceClient = await BinanceClient.getInstance();
   if (binanceClient) {
-    Logger.info({
-      message: "Before refreshData",
-      fees: binanceClient?.getCachedWithdrawalFees(),
-      time: binanceClient?.getLastDataUpdateTimeStamp(),
-    });
-
     await binanceClient.refreshData();
-
-    Logger.info({
-      message: "After refreshData",
-      fees: binanceClient?.getCachedWithdrawalFees(),
-      time: binanceClient?.getLastDataUpdateTimeStamp(),
-    });
   }
 
   // Send Binance fee notifications
   await sendBinanceFeeNotifications();
-
-  Logger.info({
-    message: "After Send Notifications",
-    fees: binanceClient?.getCachedWithdrawalFees(),
-    time: binanceClient?.getLastDataUpdateTimeStamp(),
-  });
 
   await FeeHistoryService.getInstance()
     .then(async (instance) => {

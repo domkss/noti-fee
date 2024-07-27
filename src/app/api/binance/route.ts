@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   let currentFees: CurrencyDetail[] = [];
   let captureTime: Date | null = null;
   if (binanceClient) {
-    currentFees = binanceClient.getCachedWithdrawalFees();
+    currentFees = Array.from(binanceClient.getCachedWithdrawalFees());
     captureTime = new Date(binanceClient.getLastDataUpdateTimeStamp());
   }
 

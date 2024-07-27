@@ -52,3 +52,20 @@ export function createUUID8(Object: any) {
     return v.toString(16);
   });
 }
+
+// Function to recursively freeze an object
+export function deepFreeze<T>(obj: T): T {
+  // Retrieve the property names defined on obj
+  const propNames = Object.getOwnPropertyNames(obj);
+
+  // Freeze properties before freezing self
+  for (const name of propNames) {
+    const value = (obj as any)[name];
+
+    if (value && typeof value === "object") {
+      deepFreeze(value);
+    }
+  }
+
+  return Object.freeze(obj);
+}
