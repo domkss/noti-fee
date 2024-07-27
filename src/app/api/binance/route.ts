@@ -6,10 +6,15 @@ export async function GET(req: NextRequest) {
   const binanceClient = await BinanceClient.getInstance();
 
   let currentFees: CurrencyDetail[] = [];
-  if (binanceClient) currentFees = binanceClient.getCachedWithdrawalFees();
+  let captureTime: Date | null = null;
+  if (binanceClient) {
+    currentFees = binanceClient.getCachedWithdrawalFees();
+    captureTime = new Date(binanceClient.getLastDataUpdateTimeStamp());
+  }
 
   let response: ResponseCurrentFees = {
     currentFees: currentFees,
+    captureTime: captureTime,
   };
 
   return NextResponse.json(response);

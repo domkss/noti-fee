@@ -47,11 +47,24 @@ class BinanceClient {
     }
 
     await this.calculateWithdrawalFees();
+
+    //Debugstring
+    console.log(
+      JSON.stringify({
+        calculateWithdrawalFees: this.calculatedWithdrawalFees.filter((item) => item.symbol === "ETH"),
+        rawCurrencyDataFromBinance: this.rawCurrencyDataFromBinance,
+      }),
+    );
+
     Logger.info({ message: "Binance Client: Data refreshed." });
   }
 
   public getCachedWithdrawalFees(): CurrencyDetail[] {
     return this.calculatedWithdrawalFees;
+  }
+
+  public getLastDataUpdateTimeStamp(): number {
+    return this.lastDataUpdateTimeStamp;
   }
 
   private async calculateWithdrawalFees(): Promise<void> {
@@ -110,7 +123,7 @@ class BinanceClient {
       return rankA - rankB;
     });
 
-    //Keep only the top 75 market cap currency
+    //Keep only the top 100 market cap currency
     this.calculatedWithdrawalFees = this.calculatedWithdrawalFees.slice(0, 100);
   }
 

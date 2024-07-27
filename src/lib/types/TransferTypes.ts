@@ -25,6 +25,7 @@ export function isCurrencyDetail(variable: any): variable is CurrencyDetail {
 
 export interface ResponseCurrentFees {
   currentFees: CurrencyDetail[];
+  captureTime: Date | null;
 }
 
 export type FeeNotificationConfig = z.infer<typeof FeeNotificationConfigSchema>;
