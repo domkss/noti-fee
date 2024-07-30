@@ -167,3 +167,10 @@ export function getExchangeNameById(id: string): string | undefined {
   }
   return undefined; // Return undefined if no match is found
 }
+
+export const FeeDataPairToChartColor = new Map([
+  ["BTC/BTC", { backgroundColor: "rgba(245, 97, 39, 0.5)", borderColor: "rgba(245, 97, 39, 0.8)" }],
+  ["ETH/ETH", { backgroundColor: "rgba(17, 178, 232, 0.3)", borderColor: "rgba(17, 178, 232, 0.8)" }],
+  ["SOL/SOL", { backgroundColor: "rgba(158, 16, 232, 0.3)", borderColor: "rgba(158, 16, 232, 0.8)" }],
+  ["USDT/ETH", { backgroundColor: "rgba(45, 232, 16, 0.35)", borderColor: "rgba(45, 232, 16, 0.8)" }],
+]);

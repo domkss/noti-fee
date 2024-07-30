@@ -13,14 +13,19 @@ import {
 import { StatusCodes as HTTPStatusCodes } from "http-status-codes";
 import { HistoricalFeeResponseSchema } from "@/lib/types/ZodSchemas";
 import { HistoricalFeeDataResponse } from "@/lib/types/TransferTypes";
+import { cn } from "@/lib/utility/UtilityFunctions";
+import { FeeDataPairToChartColor } from "@/lib/utility/ClientHelperFunctions";
 
 // Register Chart.js modules
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function HistoricalFeeChartView() {
   const [readyToDisplay, setReadyToDisplay] = useState<boolean>(false);
-  const [feeData, setFeeData] = useState<HistoricalFeeDataResponse | null>(null);
+  const [feeData, setFeeData] = useState<HistoricalFeeDataResponse[]>([]);
+  const [displayedFeeDataIndex, setDisplayedFeeDataIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
+  //Get data from the server
   async function getHistoricalFeeData() {
     const response = await fetch("/api/historical-fee-data");
     if (!response || response.status !== HTTPStatusCodes.OK) {
@@ -29,46 +34,48 @@ export default function HistoricalFeeChartView() {
 
     const responseBody = await response.json();
 
-    const dataBTC = HistoricalFeeResponseSchema.parse(responseBody.BTC);
-    const dataETH = HistoricalFeeResponseSchema.parse(responseBody.ETH);
-
-    const randomNumber = Math.random();
-
-    let randomChoice = 0;
-    if (randomNumber < 0.65) {
-      randomChoice = 1;
-    } else {
-      randomChoice = 2;
-    }
-
-    switch (randomChoice) {
-      case 1:
-        setFeeData(dataBTC);
-        break;
-      case 2:
-        setFeeData(dataETH);
-        break;
-      default:
-        setFeeData(dataBTC);
-        break;
-    }
+    const dataBTCBTC = HistoricalFeeResponseSchema.parse(responseBody.BTCBTC);
+    const dataETHETH = HistoricalFeeResponseSchema.parse(responseBody.ETHETH);
+    const dataSOLSOL = HistoricalFeeResponseSchema.parse(responseBody.SOLSOL);
+    const dataUSDTETH = HistoricalFeeResponseSchema.parse(responseBody.USDTETH);
+    setFeeData([dataBTCBTC, dataETHETH, dataUSDTETH, dataSOLSOL]);
 
     setReadyToDisplay(true);
   }
 
+  //Init data request
   useEffect(() => {
     getHistoricalFeeData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  //Step carousel
+  useEffect(() => {
+    if (!isHovered) {
+      const interval = setInterval(() => {
+        setDisplayedFeeDataIndex((prevIndex) => (prevIndex + 1) % feeData.length);
+      }, 8000);
+      return () => clearInterval(interval);
+    }
+  }, [displayedFeeDataIndex, isHovered, feeData.length]);
+
+  //Handle carousel dot click
+  const handleDotClick = (index: number) => {
+    setDisplayedFeeDataIndex(index);
+  };
+
   const chartData = {
-    labels: feeData?.map((item) => item.middleOfTheWeek),
+    labels: feeData[displayedFeeDataIndex]?.map((item) => item.middleOfTheWeek),
     datasets: [
       {
-        label: "Binance Average Withdraw Fee " + feeData?.at(0)?.pair,
-        data: feeData?.map((item) => item.averageFeeInUsd),
-        backgroundColor: feeData?.at(0)?.pair.includes("BTC") ? "rgba(245, 97, 39, 0.5)" : "rgba(75, 192, 192, 0.2)",
-        borderColor: feeData?.at(0)?.pair.includes("BTC") ? "rgba(245, 97, 39, 0.8)" : "rgba(75, 192, 192, 0.8)",
+        label: "Binance Average Withdraw Fee " + feeData[displayedFeeDataIndex]?.at(0)?.pair,
+        data: feeData[displayedFeeDataIndex]?.map((item) => item.averageFeeInUsd),
+        backgroundColor:
+          FeeDataPairToChartColor.get(feeData[displayedFeeDataIndex]?.at(0)?.pair ?? "")?.backgroundColor ??
+          "rgba(75, 192, 192, 0.2)",
+        borderColor:
+          FeeDataPairToChartColor.get(feeData[displayedFeeDataIndex]?.at(0)?.pair ?? "")?.borderColor ??
+          "rgba(75, 192, 192, 0.8)",
         borderWidth: 1,
       },
     ],
@@ -116,11 +123,34 @@ export default function HistoricalFeeChartView() {
     },
   };
 
+  //Display null until the chart is loaded
   if (!readyToDisplay) return null;
 
   return (
-    <div className="flex max-h-[500px] w-full justify-center overflow-hidden">
-      <Bar data={chartData} options={options} width={700} height={500} />
+    <div className="flex w-full flex-col">
+      <div className="flex max-h-[500px] w-full justify-center overflow-hidden">
+        <Bar
+          className="cursor-pointer"
+          data={chartData}
+          options={options}
+          width={700}
+          height={500}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        />
+      </div>
+      <div className="mt-4 text-center">
+        {feeData.map((_, index) => (
+          <span
+            key={index}
+            onClick={() => handleDotClick(index)}
+            className={cn(
+              "m-1 inline-block h-4 w-4 cursor-pointer rounded-full",
+              displayedFeeDataIndex === index ? "bg-emerald-300" : "bg-slate-300/70",
+            )}
+          ></span>
+        ))}
+      </div>
     </div>
   );
 }
