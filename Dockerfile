@@ -58,11 +58,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/resources ./resources
 
-
 # Install only production dependencies
 RUN npm install --only=production
 
 ARG PROJECT_ID
+ENV PROJECT_ID=$PROJECT_ID
 ARG INFISICAL_TOKEN
 ENV INFISICAL_TOKEN=$INFISICAL_TOKEN
 
