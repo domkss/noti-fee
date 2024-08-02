@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile-redis
       args:
-        - ENVKEY=${ENVKEY}
+        - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+        - ENV=prod
+        - PROJECT_ID=1f0d48ee-5f3d-4e85-a6e3-22c282fcb244
     restart: always
     expose:
       - "6380"
@@ -19,7 +21,9 @@ services:
       context: .
       dockerfile: Dockerfile-postgresql
       args:
-        - ENVKEY=${ENVKEY}
+        - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+        - ENV=prod
+        - PROJECT_ID=1f0d48ee-5f3d-4e85-a6e3-22c282fcb244
     restart: always
     expose:
       - "5432"
@@ -34,7 +38,8 @@ services:
       context: ../
       dockerfile: Dockerfile
       args:
-        - ENVKEY=${ENVKEY}
+        - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+        - PROJECT_ID=1f0d48ee-5f3d-4e85-a6e3-22c282fcb244
     image: notifee-app:latest
     restart: always
     depends_on:
@@ -53,7 +58,8 @@ services:
       context: ../tools/scheduler
       dockerfile: Dockerfile
       args:
-        - ENVKEY=${ENVKEY}
+        - INFISICAL_TOKEN=${INFISICAL_TOKEN}
+        - PROJECT_ID=1f0d48ee-5f3d-4e85-a6e3-22c282fcb244
     image: notifee-scheduler:latest
     restart: always
     networks:

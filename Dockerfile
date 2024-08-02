@@ -4,6 +4,9 @@ FROM node:22.4.1-alpine AS base
 # Install dependencies only when needed
 FROM base AS deps
 
+ARG PROJECT_ID
+ARG INFISICAL_TOKEN
+
 # Check the URL to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -23,15 +26,18 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Init envkey variable
-ARG ENVKEY
-ENV ENVKEY=$ENVKEY
+RUN apk add --no-cache bash curl && curl -1sLf \
+    'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash && \
+    apk add infisical
 
+
+
+ENV INFISICAL_TOKEN=$INFISICAL_TOKEN
 
 
 # Build the application
-RUN npx prisma generate
-RUN npm run build
+
+RUN infisical run --env=prod --projectId ${PROJECT_ID} --command "npx prisma generate && npx next build"
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -40,9 +46,9 @@ WORKDIR /app
 ENV NODE_ENV production
 
 # Install additional dependencies
-RUN apk --no-cache add curl bash && \
-    VERSION=$(curl https://envkey-releases.s3.amazonaws.com/latest/envkeysource-version.txt) && \
-    curl -s https://envkey-releases.s3.amazonaws.com/envkeysource/release_artifacts/$VERSION/install.sh | bash && \
+RUN apk add --no-cache bash curl && curl -1sLf \
+    'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash && \
+    apk add infisical && \
     addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \
     mkdir .next && \
@@ -59,9 +65,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/resources ./resources
 # Install only production dependencies
 RUN npm install --only=production
 
-# Init envkey variable
-ARG ENVKEY
-ENV ENVKEY=$ENVKEY
+ENV INFISICAL_TOKEN=$INFISICAL_TOKEN
 
 # Use the nextjs user to run the application
 USER nextjs
@@ -70,4 +74,4 @@ USER nextjs
 EXPOSE 3000
 
 # Command to run the application
-CMD envkey-source -- npx prisma migrate deploy && envkey-source -w --rolling -- npx next start
+CMD infisical run --env=prod --projectId ${PROJECT_ID} --command "npx prisma migrate deploy && npx next start"
