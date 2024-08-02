@@ -4,9 +4,6 @@ FROM node:22.4.1-alpine AS base
 # Install dependencies only when needed
 FROM base AS deps
 
-ARG PROJECT_ID
-ARG INFISICAL_TOKEN
-
 # Check the URL to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -30,8 +27,8 @@ RUN apk add --no-cache bash curl && curl -1sLf \
     'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash && \
     apk add infisical
 
-
-
+ARG PROJECT_ID
+ARG INFISICAL_TOKEN
 ENV INFISICAL_TOKEN=$INFISICAL_TOKEN
 
 
