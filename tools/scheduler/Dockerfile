@@ -24,9 +24,11 @@ RUN npx tsc
 
 ENV NODE_ENV production
 # Init envkey variable
+ARG PROJECT_ID
+ENV PROJECT_ID=$PROJECT_ID
 ARG INFISICAL_TOKEN
 ENV INFISICAL_TOKEN=$INFISICAL_TOKEN
 
 
 # Command to run the application
-CMD infisical run --env=prod --projectId 1f0d48ee-5f3d-4e85-a6e3-22c282fcb244 -- node dist/scheduler.js
+CMD infisical run --env=prod --projectId ${PROJECT_ID} -- node dist/scheduler.js
