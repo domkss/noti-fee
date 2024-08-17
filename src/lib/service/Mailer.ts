@@ -99,6 +99,8 @@ class Mailer {
         Logger.error({ message: "Failed to send verification email", error: getErrorMessage(error) });
         return false;
       }
+    } else if (process.env.NODE_ENV === "development") {
+      console.log(verificationLink);
     }
     return true;
   }
