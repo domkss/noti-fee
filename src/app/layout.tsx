@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastContainer />
         <div className="mx-auto flex min-h-screen max-w-[2560px] flex-col">{children}</div>
       </body>
-      <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM || ""} />
+      {process.env.NEXT_PUBLIC_GTM ? <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM} /> : null}
     </html>
   );
 }
