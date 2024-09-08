@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Script from "next/script";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ToastContainer />
         <div className="mx-auto flex min-h-screen max-w-[2560px] flex-col">{children}</div>
       </body>
+      <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM || ""} />
     </html>
   );
 }
