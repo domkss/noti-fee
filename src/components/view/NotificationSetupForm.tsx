@@ -127,7 +127,7 @@ export default function NotificationSetupForm() {
             setEmailIsTemporary(false);
           }}
           className={cn(
-            "mt-1 block w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
+            "mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
             {
               "border-red-600":
@@ -206,7 +206,7 @@ export default function NotificationSetupForm() {
           disabled={!selectedNetwork}
           placeholder={currentFee}
           className={cn(
-            "mt-1 block w-full rounded-lg border-2 border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
+            "mt-1 block w-full rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm/6 text-black shadow-sm",
             "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25",
             { "border-red-600": targetFee.compatible === false },
             { "cursor-not-allowed": !selectedNetwork },

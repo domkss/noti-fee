@@ -51,7 +51,7 @@ function CryptoSelector(props: CryptoSelectorProps) {
         <div className="relative">
           <ComboboxInput
             className={cn(
-              "text-balck w-full rounded-lg border-2 border-gray-200 py-2 pl-3 pr-8 text-sm/6",
+              "text-balck w-full rounded-lg border border-gray-200 py-2 pl-3 pr-8 text-sm/6",
               "data-[focus]:outline-balck/25 shadow-sm focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2",
             )}
             displayValue={(token: { name: string; symbol?: string; network?: string }) =>
