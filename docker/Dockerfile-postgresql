@@ -1,5 +1,5 @@
 # Use the official PostgreSQL Alpine image as a base image
-FROM postgres:alpine
+FROM postgres:16-alpine
 
 # Install curl and infisical
 RUN apk add --no-cache bash curl && curl -1sLf \
